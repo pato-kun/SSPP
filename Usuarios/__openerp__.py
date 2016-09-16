@@ -32,13 +32,14 @@
     'maintainer': 'JCAS',
     'website': 'http://www.facebook.com/patotec',
     'licenses' : 'AGPL-3',
-    'depends': ['base'],
+    'depends': ['base','mail','email_template'],
     'init_xml' : [],
     'demo_xml' : ['demo.xml'],
     'data': [
                     'usuarios_view.xml',
                     ],
     'installable': True,
+    'auto_install': True,
     'active': False,
     'application': True,
 

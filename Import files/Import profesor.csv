@@ -1,0 +1,2 @@
+email,login,name,alias_contact,alias_model_id/id,create_uid/id,customer,type,groups_id/id,write_uid/id,active,,alias_user_id/id,alias_parent_model_id/id,notify_email
+pat01822@gmail.com,pat01822@gmail.com,profeimport,everyone,auth_crypt.model_res_users,base.user_root,FALSE,contact,"base.group_partner_manager,base.group_user,Usuarios.user_group_professor",base.user_root,TRUE,,base.user_root,auth_crypt.model_res_users,always

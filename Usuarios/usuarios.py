@@ -30,7 +30,7 @@ from openerp import api, models
 import time
 
 
-class professor_users(models.Model): #osv.osv
+class usuarios_users(models.Model): #osv.osv
     _inherit = 'res.users'
     #_name = 'professor.users' #decided skip this step during first iteration
     _columns = { 'categ_ids': fields.many2many('professor.category', string='Tags'), }

@@ -18,10 +18,7 @@
         <!-- Grupos -->
         <!-- Creacion de los Grupos /estudiante y /profesor -->
 
-        <record id="user_group_student" model="res.groups">
-		    <field name="name">Grupo Estudiantes</field>
-		    <field name="category_id" ref="base.module_category_sales_management"/>
-		</record>
+        
 
         <record id="user_group_action" model="ir.actions.act_window">
             <field name="name">Grupos</field>
@@ -41,8 +38,8 @@
        
 
 
-        <!-- configuracion del submenu de tags -->
-             <record model="ir.ui.view" id="professor_category_search_view">
+       <!-- configuracion del submenu de tags -->
+        <record model="ir.ui.view" id="professor_category_search_view">
             <field name="name">Tags</field>
             <field name="model">professor.category</field>
             <field name="arch" type="xml">
@@ -71,6 +68,17 @@
                 Click para agregar un nuevo tema.
               </p>
             </field>
+        </record>
+
+
+        <record id="user_group_student" model="res.groups">
+            <field name="name">Grupo Estudiantes</field>
+            <field name="category_id" ref="base.module_category_usuarios"/>
+        </record>
+
+        <record id="user_group_professor" model="res.groups">
+            <field name="name">Grupo Profesores</field>
+            <field name="category_id" ref="base.module_category_usuarios"/>
         </record>
 
 

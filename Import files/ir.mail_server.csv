@@ -1,0 +1,2 @@
+"id","active","smtp_encryption","name","smtp_pass","sequence","smtp_port","smtp_host","smtp_user"
+"base.ir_mail_server_localhost0","True","TLS (STARTTLS)","Gmail","adminsspp","1","587","smtp.gmail.com","ssppitcr@gmail.com"
