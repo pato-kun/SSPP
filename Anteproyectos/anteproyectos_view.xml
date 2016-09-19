@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!--  esta especifica la vista de los estudiantes en tipo lista -->
+        <record id="sspp_anteproyecto_tree" model="ir.ui.view">
+            <field name="name">sspp.anteproyecto.tree</field>
+            <field name="model">sspp.anteproyecto</field>
+            <field name="arch" type="xml">
+                <tree string="Lista De Anteproyectos">
+                    <field name ="possibleTasks" />
+                    <field name ="actualTask" />
+                    <field name ="generalObjetive" />
+                    <field name ="specificObjective" />
+                    <field name ="metodology" />
+                    <field name ="tools" />
+
+                </tree>
+            </field>
+        </record>
+     
+
+        <!--  esta especifica la vista de los estudiantes en tipo FOrma, es decir uno x uno -->
+        <record id="sspp_anteproyecto_form" model="ir.ui.view">
+            <field name="name">sspp.anteproyecto.form</field>
+            <field name="model">sspp.anteproyecto</field>
+            <field name="arch" type="xml">
+                <form string="Anteproyecto" version="7.0">
+                    <header>
+
+                        <!--
+                        <button string="Borrador" type="object" name="action_draft" class="oe_highlight" attrs="{'invisible': [('state','!=','draft')]}"/>
+                        <button string="Aprobar anteproyecto" type="object" name="action_aprove" attrs="{'invisible': [('state','=','aprove')]}"/>
+                        <button string="Rechazar anteproyecto" type="object" name="action_reject" attrs="{'invisible': [('state','=','reject')]}"/>
+                        <field name="state" widget="statusbar"/>
+                        -->
+                    </header>
+                    <sheet>
+                        <group> <!-- colspan/col -->
+                            <field name ="possibleTasks" string="Posibles Trabajos"/>
+                            <field name ="actualTask" string="Trabajos a realizar"/>
+                            <field name ="generalObjetive" string="Objetivo General"/>
+                            <field name ="specificObjective" string="Objetivos Especificos"/>
+                            <field name ="metodology" string="Metodologia"/>
+                            <field name ="tools" string="Herramientas"/>
+                            <field name ="categ_ids" widget="many2many_tags"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- test -->
+
+        <!-- end test -->
+
+        <!--  esta parte es el menu de creacion y vista de estudiantes -->
+        <record id="sspp_anteproyecto_action" model="ir.actions.act_window">
+            <field name="name">Anteproyectos</field>
+            <field name="res_model">sspp.anteproyecto</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar un nuevo anteproyecto.
+              </p>
+            </field>
+        </record>
+
+        <!-- esta es la opcion del menu principal para el modulo -->
+        <menuitem id="sspp_anteproyecto_menu" name="Anteproyectos"/>
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" sequence="0"/>
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_anteproyecto_action" parent="submenu_sspp_anteproyecto" name="Anteproyectos" sequence="0" action ="sspp_anteproyecto_action"/>
+
+    </data>
+</openerp>

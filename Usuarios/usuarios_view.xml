@@ -36,12 +36,23 @@
 
        <!-- configuracion de la vista de usuario en edicion creacion -->
        
-
+       <record id="view_users_form_inherit" model="ir.ui.view">
+        <field name="name">res.users.form.inherit</field>
+        <field name="model">res.users</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <attribute name="string">Areas de conocimiento</attribute>
+               <field name="categ_ids"  widget="many2many_tags"/>
+             </field>
+        </field>
+    </record>
 
        <!-- configuracion del submenu de tags -->
         <record model="ir.ui.view" id="professor_category_search_view">
             <field name="name">Tags</field>
-            <field name="model">professor.category</field>
+            <field name="model">prof.category</field>
             <field name="arch" type="xml">
                 <search string="Issue Version">
                     <field name="name"/>
@@ -50,7 +61,7 @@
         </record>
         <record model="ir.ui.view" id="professor_category_form_view">
             <field name="name">Tags</field>
-            <field name="model">professor.category</field>
+            <field name="model">prof.category</field>
             <field name="arch" type="xml">
                 <form string="Tags">
                     <group col="4">
@@ -61,7 +72,7 @@
         </record>
         <record id="professor_category_action" model="ir.actions.act_window">
             <field name="name">Tags</field>
-            <field name="res_model">professor.category</field>
+            <field name="res_model">prof.category</field>
             <field name="view_type">form</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">

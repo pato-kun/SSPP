@@ -24,34 +24,5 @@
 ##############################################################################
 
 
-from openerp.osv import fields, osv, orm
-from openerp.tools.translate import _
-from openerp import api, models
-import time
 
-
-class usuarios_users(models.Model): #osv.osv
-    _inherit = 'res.users'
-    #_name = 'professor.users' #decided skip this step during first iteration
-    _columns = { 'categ_ids': fields.many2many('prof.category', string='Etiquetas'), }
-
-#class res_users_student(osv.osv):
-#    _inherit = 'res.users.user'
-#    _name = 'student'
-#    _columns = { 'categ_ids': fields.many2many('professor.category', string='Tags'), }
-#    @api.model
-#    def create(self, values):
-#        return super(User, self).create(values)
-    
-
-
-class profesor_categoria(models.Model):
-    """ Area que conocimiento que abarca """
-    _name = "prof.category"
-    _description = "Area de conocimiento o tema."
-    _columns = { 
-        'name' : fields.char('name', required=True, translate=True), 
-        }
-    
-    
-
+import anteproyectos
