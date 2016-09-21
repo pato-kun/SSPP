@@ -7,12 +7,9 @@
             <field name="model">sspp.anteproyecto</field>
             <field name="arch" type="xml">
                 <tree string="Lista De Anteproyectos">
-                    <field name ="possibleTasks" />
-                    <field name ="actualTask" />
-                    <field name ="generalObjetive" />
-                    <field name ="specificObjective" />
-                    <field name ="metodology" />
-                    <field name ="tools" />
+                    <field name ="name" />
+                    <!-- student -->
+                    <field name ="state" />
 
                 </tree>
             </field>
@@ -31,26 +28,100 @@
                         <button string="Borrador" type="object" name="action_draft" class="oe_highlight" attrs="{'invisible': [('state','!=','draft')]}"/>
                         <button string="Aprobar anteproyecto" type="object" name="action_aprove" attrs="{'invisible': [('state','=','aprove')]}"/>
                         <button string="Rechazar anteproyecto" type="object" name="action_reject" attrs="{'invisible': [('state','=','reject')]}"/>
-                        <field name="state" widget="statusbar"/>
                         -->
+                        <field name="state" widget="statusbar"/>
+                        
                     </header>
                     <sheet>
-                        <group> <!-- colspan/col -->
-                            <field name ="possibleTasks" string="Posibles Trabajos"/>
+                    
+                        <group string="Nombre"> 
+                        <!-- colspan/col -->
+                            <field name ="name"/>
+                        </group>
+
+                        <group string="Estudiante"> 
+                            <field name ="student"/>
+                        </group>
+
+                        <group string="Empresa"> 
+                            <field name ="company"/>
+                        </group>
+
+                        <group string="Contacto de la Empresa"> 
+                            <field name ="companyContact"/>
+                        </group>
+
+                        <group string="Asesor en la Empresa"> 
+                            <field name ="companyAssesor"/>
+                        </group>
+
+                        <group string="Profesor Asesor"> 
+                            <field name ="profAssesor"/>
+                        </group>
+
+                        <!-- ultimo cambio added this group-->
+                        <group string="Areas de estudio"> 
+                        <field name="topics"  widget="many2many_tags"/>
+                        </group> 
+
+                        <group string="Posibles Trabajos"> 
+                        <!-- colspan/col -->
+                            <field name ="possibleTasks"/>
+                        </group>
+                        
+                        <group col="4">
+                            
                             <field name ="actualTask" string="Trabajos a realizar"/>
+
+                        </group>
+                        <group>
                             <field name ="generalObjetive" string="Objetivo General"/>
                             <field name ="specificObjective" string="Objetivos Especificos"/>
                             <field name ="metodology" string="Metodologia"/>
                             <field name ="tools" string="Herramientas"/>
-                            <field name ="categ_ids" widget="many2many_tags"/>
+                            <!-- 
+                            <attribute name="string">Areas de conocimiento</attribute>
+                            <group string="Areas de estudio">  ulstimo cambio
+                            -->
+                            
+
                         </group>
                     </sheet>
                 </form>
             </field>
         </record>
         
-        <!-- test -->
-
+        <!-- configuracion del submenu de tags -->
+        <record model="ir.ui.view" id="anteprojecto_category_search_view">
+            <field name="name">TagsSearch</field>
+            <field name="model">anteproyecto.topics</field>
+            <field name="arch" type="xml">
+                <search string="Issue Version">
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="anteprojecto_category_form_view">
+            <field name="name">TagsForm</field>
+            <field name="model">anteproyecto.topics</field>
+            <field name="arch" type="xml">
+                <form string="Tags">
+                    <group col="4">
+                        <field name="name"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+        <record id="anteprojecto_category_action" model="ir.actions.act_window">
+            <field name="name">Etiquetas de tema</field>
+            <field name="res_model">anteproyecto.topics</field>
+            <field name="view_type">form</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar un nuevo tema.
+              </p>
+            </field>
+        </record>
         <!-- end test -->
 
         <!--  esta parte es el menu de creacion y vista de estudiantes -->
@@ -58,7 +129,7 @@
             <field name="name">Anteproyectos</field>
             <field name="res_model">sspp.anteproyecto</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
                 Click para agregar un nuevo anteproyecto.
@@ -70,10 +141,13 @@
         <menuitem id="sspp_anteproyecto_menu" name="Anteproyectos"/>
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" sequence="0"/>
+        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" />
+
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto_action" parent="submenu_sspp_anteproyecto" name="Anteproyectos" sequence="0" action ="sspp_anteproyecto_action"/>
+        <menuitem id="submenu_sspp_anteproyecto_action" parent="submenu_sspp_anteproyecto" name="Anteproyectos" action ="sspp_anteproyecto_action"/>
+
+        <menuitem id="submenu_sspp_anteproyecto_tags" parent="submenu_sspp_anteproyecto" name="Etiquetas de tema"  action ="anteprojecto_category_action"/>
 
     </data>
 </openerp>

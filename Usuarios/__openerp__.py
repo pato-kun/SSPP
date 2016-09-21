@@ -26,13 +26,13 @@
 {
     'name': 'Modulo de Usuarios',
     'version': '1',
-    'category': 'Usuarios',
+    'category': 'usuarios',
     'description': """Modulo de usuarios del sistema SSPP.""",
     'author': 'JCAS',
     'maintainer': 'JCAS',
     'website': 'http://www.facebook.com/patotec',
     'licenses' : 'AGPL-3',
-    'depends': ['base','mail','email_template'],
+    'depends': ['Anteproyectos','base','mail','email_template'],
     'init_xml' : [],
     'demo_xml' : ['demo.xml'],
     'data': [

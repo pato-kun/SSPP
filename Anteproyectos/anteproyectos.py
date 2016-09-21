@@ -24,35 +24,57 @@
 ##############################################################################
 
 
-from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
-from openerp import api, models
+from openerp import api, models, fields
 import time
 
 
 class anteproyecto(models.Model):
-    _name = 'sspp.anteproyecto'
+	#_inherit = 'prof.category'
+	_name = 'sspp.anteproyecto'
+	_description = 'Formulario De Anteproyecto'
 
-    _description = 'Formulario De Anteproyecto'
+	name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
+	student = fields.Many2one('res.users', ondelete='set null', string="Estudiante", index=True )
+	company = fields.Many2one('res.company', 'Empresa',requiered=True)
+	companyContact = fields.Many2one('res.partner', ondelete='set null', string="Contacto de la Empresa", index=True )
+	companyAssesor = fields.Many2one('res.partner', ondelete='set null', string="Asesor en la Empresa", index=True )
+	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True )
+	possibleTasks = fields.Html('Posibles Trabajos a Realizar', requiered=True, help='Posibles trabajos a realizar')
+	#'fechainicio': fields.date('Fecha de inicio', requiered=True),
+	#'fechafinal': fields.date('Fecha de fin', requiered=True),
+	actualTask = fields.Html('Descripcion Del Trabajo A Realizar',  requiered=True, help='Trabajos a realizar durante el proyecto')
+	generalObjetive  = fields.Html('Objetivo General Del Trabajo',  requiered=True, help='Objetivo general del proyecto')
+	specificObjective = fields.Html('Objetivos Especificos',  requiered=True, help='Objetivos especificos para logra el objetivo')
+	metodology = fields.Html('Metodologia',  requiered=True, help='Describa la metodologia a utilizar')
+	tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
+	topics = fields.Many2many('anteproyecto.topics', string='Areas de estudio',ondelete='cascade')
+	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto')
 
-    _columns = {
-     	'possibleTasks': fields.char('Posibles Tareas A Realizar', size=256 , requiered=True, help='Posibles trabajos a realizar'),
-        #'fechainicio': fields.date('Fecha de inicio', requiered=True),
-        #'fechafinal': fields.date('Fecha de fin', requiered=True),
-        'actualTask': fields.char('Descripcion Del Trabajo A Realizar', size=256 , requiered=True, help='Trabajos a realizar durante el proyecto'),
-        'generalObjetive': fields.char('Objetivo General Del Trabajo', size=256 , requiered=True, help='Objetivo general del proyecto'),
-    	'specificObjective': fields.char('Objetivos Especificos', size=256 , requiered=True, help='Objetivos especificos para logra el objetivo'),
-        'metodology': fields.char('Metodologia', size=256 , requiered=True, help='Describa la metodologia a utilizar'),
-        'tools': fields.char('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos'),
-        #'categ_ids': fields.many2many('prof.category', string='Areas de estudio'), #, relation='professor_category_sspp_anteproyecto_rel'
-        'state': fields.selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto'),
-    }
+	_defaults = {
+		'state': 'draft', 
+	}
 
-    _defaults = {
-    	'state': 'draft', 
-    }
+	
+#class res_users_student(osv.osv):
+#    _inherit = 'res.users.user'
+#    _name = 'student'
+#    _columns = { 'categ_ids': fields.many2many('professor.category', string='Tags'), }
+#    @api.model
+#    def create(self, values):
+#        return super(User, self).create(values)
     
 
+class anteproyecto_tema(models.Model):
+	""" Area que conocimiento que abarca """
+	_name = 'anteproyecto.topics'
+	_description = "Area de estudio o tema."
+	name = fields.Char('Nombre', required=True, translate=True)
+    
+    # User can write on a few of his own fields (but not his groups for example)
+    #SELF_WRITEABLE_FIELDS = ['name']
+    # User can read a few of his own fields
+    #SELF_READABLE_FIELDS = ['profAssesor'] 
 
 
 #class contacto_empresa_partner(models.Model): #osv.osv

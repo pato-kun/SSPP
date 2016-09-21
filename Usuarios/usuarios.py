@@ -24,16 +24,19 @@
 ##############################################################################
 
 
-from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
-from openerp import api, models
+from openerp import api, models, fields
+
 import time
 
 
 class usuarios_users(models.Model): #osv.osv
-    _inherit = 'res.users'
-    #_name = 'professor.users' #decided skip this step during first iteration
-    _columns = { 'categ_ids': fields.many2many('prof.category', string='Etiquetas'), }
+	_inherit = 'res.users'
+	_name = 'res.users'
+	#_name = 'professor.users' #decided skip this step during first iteration
+	topics = fields.Many2many( 'anteproyecto.topics' , 'id', 'name')#, string='Areas de Conocimineto')
+
+	#categ_ids = fields.Many2many(related='anteproyecto.topics', string='Areas de Conocimineto',ondelete='cascade')
 
 #class res_users_student(osv.osv):
 #    _inherit = 'res.users.user'
@@ -42,16 +45,8 @@ class usuarios_users(models.Model): #osv.osv
 #    @api.model
 #    def create(self, values):
 #        return super(User, self).create(values)
-    
 
 
-class profesor_categoria(models.Model):
-    """ Area que conocimiento que abarca """
-    _name = "prof.category"
-    _description = "Area de conocimiento o tema."
-    _columns = { 
-        'name' : fields.char('name', required=True, translate=True), 
-        }
     
     
 

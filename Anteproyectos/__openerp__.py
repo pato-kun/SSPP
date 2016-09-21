@@ -32,7 +32,7 @@
     'maintainer': 'JCAS',
     'website': 'http://www.facebook.com/patotec',
     'licenses' : 'AGPL-3',
-    'depends': ['base','mail','email_template','Usuarios'],
+    'depends': ['base','mail','email_template', 'contacts'],
     'init_xml' : [],
     'demo_xml' : ['demo.xml'],
     'data': [
