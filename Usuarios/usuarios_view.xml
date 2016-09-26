@@ -13,7 +13,9 @@
             groups="base.group_no_one"
             sequence="60"/>
 
-        <!-- TEST -->
+        <!-- NOTE:  
+        By the way, if you want to make something only visible for the administrator then you should add this attribute to the element: groups="base.group_no_one"
+        -->
 
         <!-- Grupos -->
         <!-- Creacion de los Grupos /estudiante y /profesor -->
@@ -31,7 +33,6 @@
 
         <!-- Usuarios -->
 
-
        <!-- configuracion de la vista de usuario en edicion creacion -->
        
        <record id="view_users_form_inherit" model="ir.ui.view">
@@ -44,12 +45,11 @@
                 <attribute name="string">Areas de conocimiento</attribute>
                 <field name="topics"  widget="many2many_tags"/>
             </field>
-        </field>
-    </record>
+            </field>
+        </record>
 
        
-
-
+        <!-- Creates the user groups  
         <record id="user_group_student" model="res.groups">
             <field name="name">Grupo Estudiantes</field>
             <field name="category_id" ref="base.module_category_usuarios"/>
@@ -59,7 +59,7 @@
             <field name="name">Grupo Profesores</field>
             <field name="category_id" ref="base.module_category_usuarios"/>
         </record>
-
+         -->
 
         <!-- TESSSSST 
         <menuitem action="action_res_users2" id="menu_action_res_users" 

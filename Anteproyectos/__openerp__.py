@@ -37,6 +37,8 @@
     'demo_xml' : ['demo.xml'],
     'data': [
                     'anteproyectos_view.xml',
+
+                    'seguridad\ir.model.access.csv',
                     ],
     'installable': True,
     'auto_install': True,

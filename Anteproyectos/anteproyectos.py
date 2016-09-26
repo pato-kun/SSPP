@@ -35,11 +35,13 @@ class anteproyecto(models.Model):
 	_description = 'Formulario De Anteproyecto'
 
 	name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
-	student = fields.Many2one('res.users', ondelete='set null', string="Estudiante", index=True )
+	student = fields.Many2one('res.users' ,  ondelete='set null', string="Estudiante", index=True ) #,default=lambda self: self.env.user )
 	company = fields.Many2one('res.company', 'Empresa',requiered=True)
 	companyContact = fields.Many2one('res.partner', ondelete='set null', string="Contacto de la Empresa", index=True )
 	companyAssesor = fields.Many2one('res.partner', ondelete='set null', string="Asesor en la Empresa", index=True )
-	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True )
+	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) 
+		#, domain="[('asset_catg_id', '=',place)]"),
+		#, read=['Anteproyectos.user_group_professor'] )
 	possibleTasks = fields.Html('Posibles Trabajos a Realizar', requiered=True, help='Posibles trabajos a realizar')
 	#'fechainicio': fields.date('Fecha de inicio', requiered=True),
 	#'fechafinal': fields.date('Fecha de fin', requiered=True),
@@ -49,11 +51,30 @@ class anteproyecto(models.Model):
 	metodology = fields.Html('Metodologia',  requiered=True, help='Describa la metodologia a utilizar')
 	tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
 	topics = fields.Many2many('anteproyecto.topics', string='Areas de estudio',ondelete='cascade')
-	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto')
+	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
+
+	
+
+	@api.multi
+	def action_draft(self):
+		self.state = 'draft'
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+	@api.one
+	def action_reject(self):
+		self.write({
+	    'state': 'reject',
+		})
+		#self.state = 'reject'
 
 	_defaults = {
+		'student': lambda obj, cr, uid, context: uid,
 		'state': 'draft', 
 	}
+	#@api.onchange(student)
+	#def dynamic_student_domain(self):
+    #  return {'domain': {'student': [('student.groups_id','in',['Anteproyectos.user_group_student'])]}}
 
 	
 #class res_users_student(osv.osv):

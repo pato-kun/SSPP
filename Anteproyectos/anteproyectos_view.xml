@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+
+        <!-- Creates the user groups   -->
+        <record id="user_group_student" model="res.groups">
+            <field name="name">Grupo Estudiantes</field>
+            <field name="category_id" ref="base.module_category_usuarios"/>
+        </record>
+
+        <record id="user_group_professor" model="res.groups">
+            <field name="name">Grupo Profesores</field>
+            <field name="category_id" ref="base.module_category_usuarios"/>
+        </record>
+
+
         <!--  esta especifica la vista de los estudiantes en tipo lista -->
         <record id="sspp_anteproyecto_tree" model="ir.ui.view">
             <field name="name">sspp.anteproyecto.tree</field>
@@ -8,7 +21,7 @@
             <field name="arch" type="xml">
                 <tree string="Lista De Anteproyectos">
                     <field name ="name" />
-                    <!-- student -->
+                    <field name ="student" />
                     <field name ="state" />
 
                 </tree>
@@ -16,7 +29,7 @@
         </record>
      
 
-        <!--  esta especifica la vista de los estudiantes en tipo FOrma, es decir uno x uno -->
+        <!--  Vista Form del formulario de anteproyecto -->
         <record id="sspp_anteproyecto_form" model="ir.ui.view">
             <field name="name">sspp.anteproyecto.form</field>
             <field name="model">sspp.anteproyecto</field>
@@ -24,11 +37,14 @@
                 <form string="Anteproyecto" version="7.0">
                     <header>
 
-                        <!--
-                        <button string="Borrador" type="object" name="action_draft" class="oe_highlight" attrs="{'invisible': [('state','!=','draft')]}"/>
-                        <button string="Aprobar anteproyecto" type="object" name="action_aprove" attrs="{'invisible': [('state','=','aprove')]}"/>
-                        <button string="Rechazar anteproyecto" type="object" name="action_reject" attrs="{'invisible': [('state','=','reject')]}"/>
-                        -->
+                        <!-- botones de control, no visibles a los estudiantes o profesores? -->
+                        <button name="action_draft" string="Regresar a borrador" type="object"   />
+                        <!--    attrs="{'invisible': [('state','!=','draft')]}"/> -->
+                        <button name="action_aprove" string="Aprobar anteproyecto" type="object"  class="oe_highlight" />
+                        <!--     attrs="{'invisible': [('state','=','aprove')]}"/> -->
+                        <button name="action_reject" string="Rechazar anteproyecto" type="object"  />
+                        <!--     attrs="{'invisible': [('state','=','reject')]}"/> -->
+                        
                         <field name="state" widget="statusbar"/>
                         
                     </header>
@@ -57,6 +73,7 @@
 
                         <group string="Profesor Asesor"> 
                             <field name ="profAssesor"/>
+
                         </group>
 
                         <!-- ultimo cambio added this group-->
@@ -71,7 +88,7 @@
                         
                         <group col="4">
                             
-                            <field name ="actualTask" string="Trabajos a realizar"/>
+                            <field name ="actualTask" string="Trabajos   a realizar"/>
 
                         </group>
                         <group>
@@ -79,18 +96,48 @@
                             <field name ="specificObjective" string="Objetivos Especificos"/>
                             <field name ="metodology" string="Metodologia"/>
                             <field name ="tools" string="Herramientas"/>
-                            <!-- 
-                            <attribute name="string">Areas de conocimiento</attribute>
-                            <group string="Areas de estudio">  ulstimo cambio
-                            -->
-                            
 
                         </group>
                     </sheet>
                 </form>
             </field>
         </record>
+
+
+        <!--  Vista Form del formulario de anteproyecto heredada para estudiantes debe prevenir que 
+        el estudiante no edite el campo profesor asesor ni el estudiante del proyecto-->
+        <record model="ir.ui.view"  id="sspp_anteproyecto_form_student">
+            <field name="name">sspp.anteproyecto.form.student</field>
+            <field name="model">sspp.anteproyecto</field>
+            <field name="inherit_id" ref="Anteproyectos.sspp_anteproyecto_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml">
+                <field name ="student" position="attributes" domain="[('uid')]" >
+                    <attribute name="readonly">1</attribute>
+                </field>
+                 
+                <field name="profAssesor" position="attributes" domain="[('uid.groups_id', 'in', 'Anteproyectos.user_group_professor')]">
+                    <attribute name="readonly">1</attribute>
+                </field>
+            </field>
+        </record>
+
+        <!--  Vista tree del formulario de anteproyecto heredada para estudiantes -->
+        <record model="ir.ui.view"  id="sspp_anteproyecto_tree_student_inherited">
+            <field name="name">sspp.anteproyecto.tree.student</field>
+            <field name="model">sspp.anteproyecto</field>
+            <field name="inherit_id" ref="Anteproyectos.sspp_anteproyecto_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml"> <!--
+                <filter name ="sspp_anteproyecto_tree_student_filter" string="Lista De Anteproyectos filter" domain="[('user_id','=',uid)]"/> -->
+                <field name="state" position="after">
+                <field name ="generalObjetive" string="Objetivo General" domain="[('create_uid','=',user.id)]"/>
+                </field>
+            </field>
+        </record>
         
+
+
         <!-- configuracion del submenu de tags -->
         <record model="ir.ui.view" id="anteprojecto_category_search_view">
             <field name="name">TagsSearch</field>
@@ -124,7 +171,7 @@
         </record>
         <!-- end test -->
 
-        <!--  esta parte es el menu de creacion y vista de estudiantes -->
+        <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
         <record id="sspp_anteproyecto_action" model="ir.actions.act_window">
             <field name="name">Anteproyectos</field>
             <field name="res_model">sspp.anteproyecto</field>
@@ -138,16 +185,55 @@
         </record>
 
         <!-- esta es la opcion del menu principal para el modulo -->
-        <menuitem id="sspp_anteproyecto_menu" name="Anteproyectos"/>
+        <menuitem id="sspp_anteproyecto_menu" name="Anteproyectos"
+            />
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" />
+        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" 
+            />
 
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto_action" parent="submenu_sspp_anteproyecto" name="Anteproyectos" action ="sspp_anteproyecto_action"/>
+        <menuitem id="submenu_sspp_anteproyecto_action" parent="submenu_sspp_anteproyecto" name="Anteproyectos" action ="sspp_anteproyecto_action"
+            />
 
-        <menuitem id="submenu_sspp_anteproyecto_tags" parent="submenu_sspp_anteproyecto" name="Etiquetas de tema"  action ="anteprojecto_category_action"/>
+        <menuitem id="submenu_sspp_anteproyecto_tags" parent="submenu_sspp_anteproyecto" name="Etiquetas de tema"  action ="anteprojecto_category_action"
+            />
 
+         <!--    RECORD RULES -->
+        <record id="anteproyecto_student_rule" model="ir.rule">
+            <field name="name">Regla de autoria de anteproyectos grupo estudiantes</field>
+            <field name="model_id" ref="model_sspp_anteproyecto"/>
+         <!--     By default, all perm_ * are True -->
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        <!--      If limited to a group :-->
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
+        <!--      The "global" field is a calculated field that is automatically
+             True is groups = False -->
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            
+        </record>
+
+
+        <!--  test for domain controled views 
+
+        <record id="group_checkroll_manager" model="res.groups">
+            <field name="name">Checkroll_Manager</field>
+            <field name="implied_ids" eval="[(4, ref('group_checkroll_user'))]" />
+            <field name="category_id" ref="module_checkroll_category" />
+            <field name="users" eval="[(4, ref('base.user_root'))]" />
+        </record>
+
+         
+        
+          test for update menu privileges
+        <record id="Anteproyectos.sspp_anteproyecto_menu" model="ir.ui.menu">
+        Use the special many2many value syntax to add a child record, and the `ref()` method to resolve the group XML ID 
+            <field name="groups_id" eval="[(4,ref('Usuarios.user_group_student'))]"/>
+        </record>
+-->
     </data>
 </openerp>
