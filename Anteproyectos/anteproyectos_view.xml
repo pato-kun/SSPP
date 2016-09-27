@@ -23,6 +23,7 @@
                     <field name ="name" />
                     <field name ="student" />
                     <field name ="state" />
+                    <field name ="profAssesor" />
 
                 </tree>
             </field>
@@ -112,11 +113,13 @@
             <field name="inherit_id" ref="Anteproyectos.sspp_anteproyecto_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
-                <field name ="student" position="attributes" domain="[('uid')]" >
+                <field name ="student" position="attributes"  >
+                   <!--  domain="[('uid')]" -->
                     <attribute name="readonly">1</attribute>
                 </field>
                  
-                <field name="profAssesor" position="attributes" domain="[('uid.groups_id', 'in', 'Anteproyectos.user_group_professor')]">
+                <field name="profAssesor" position="attributes" >
+                    <!-- domain="[('uid.groups_id', 'in', 'Anteproyectos.user_group_professor')]"> -->
                     <attribute name="readonly">1</attribute>
                 </field>
             </field>
