@@ -44,6 +44,10 @@
             <field name="company_id" position="after">
                 <attribute name="string">Areas de conocimiento</attribute>
                 <field name="topics"  widget="many2many_tags"/>
+                <group col="4" string="Tipo de usuario">
+                    <field name="isStudent" string="Usuario Estudiante:"/>
+                    <field name="isProfessor" string="Usuario Profesor:"/>
+                </group>
             </field>
             </field>
         </record>

@@ -36,7 +36,7 @@ class anteproyecto(models.Model):
 
 	name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
 	student = fields.Many2one('res.users' ,  ondelete='set null', string="Estudiante", index=True ) #,default=lambda self: self.env.user )
-	company = fields.Many2one('res.company', 'Empresa',requiered=True)
+	company = fields.Many2one('res.partner', 'Empresa',requiered=True)
 	companyContact = fields.Many2one('res.partner', ondelete='set null', string="Contacto de la Empresa", index=True )
 	companyAssesor = fields.Many2one('res.partner', ondelete='set null', string="Asesor en la Empresa", index=True )
 	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) 
@@ -72,6 +72,7 @@ class anteproyecto(models.Model):
 		'student': lambda obj, cr, uid, context: uid,
 		'state': 'draft', 
 	}
+	
 	#@api.onchange(student)
 	#def dynamic_student_domain(self):
     #  return {'domain': {'student': [('student.groups_id','in',['Anteproyectos.user_group_student'])]}}

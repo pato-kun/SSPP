@@ -24,23 +24,62 @@
                 <form string="Informes Semanales" version="7.0">
                     <header>
                         <!-- botones de control, no visibles a los estudiantes o profesores? -->
-                        <button name="action_draft" string="Regresar a borrador" type="object"   />
-                        <!--    attrs="{'invisible': [('state','!=','draft')]}"/> -->
-                        <button name="action_aprove" string="Aprobar anteproyecto" type="object"  class="oe_highlight" />
-                        <!--     attrs="{'invisible': [('state','=','aprove')]}"/> -->
-                        <button name="action_reject" string="Rechazar anteproyecto" type="object"  />
-                        <!--     attrs="{'invisible': [('state','=','reject')]}"/> -->
+                        <button name="action_draft" string="Regresar a borrador" type="object"
+                        groups="base.group_no_one"   />
+                        <!--    Anteproyectos.user_group_professor
+                        attrs="{'invisible': [('state','!=','draft')]}"/> -->
+                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight"  
+                            groups="base.group_no_one"/>
+                        <!--     Anteproyectos.user_group_professor
+                        attrs="{'invisible': [('state','=','aprove')]}"/> -->
+                        <button name="action_reject" string="Rechazar informe" type="object"  
+                            groups="base.group_no_one"/>
+                           <!--
+                        <button name="sort_index_groups" string="sort this crap" type="object"  
+                            groups="base.group_no_one"/>
+                             
+                             Anteproyectos.user_group_professor
+                        attrs="{'invisible': [('state','=','reject')]}"/> -->
                         
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet> 
-                        <group> <!-- colspan/col -->
-                            <field name ="profAssesor" />
-                            <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" />
-                            <field name ="dateFiled" />
-                            <field name ="description" />
-                            <field name ="status" widget="selection"/>
-                            <field name ="comments" />
+                        <group > <!-- colspan/col 
+                            domain="[('groups_id','in',Anteproyectos.user_group_student)]" />
+                            context="{'default_groups_ref': ['base.group_no_one']}"
+                            
+                            context="{'default_groups_ref': ['Anteproyectos.user_group_student']}"
+                            [('company_ids','child_of',[user.company_id.id])]
+                            domain="[('groups_id','in','base.group_no_one')]" -> index error
+                            domain="[('groups_id','in',[base.group_no_one])]" ->base doesnt exists
+                            <field name ="sortField" 
+                                    attrs="{'invisible':[('state','in',['draft','reject','aprove'])]}"/>
+                                    domain="[('category_id.name', '=', 'user_group_professor')]"
+                            
+                        -->
+                            <field name ="student"  widget="selection"
+                                     domain="[('isStudent','=',True)]"
+                                
+                                 />
+                            <field name ="profAssesor" 
+                                
+                                />
+
+                            <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <field name ="dateFiled" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <field name ="description" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
+                            <field name ="status" widget="selection" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <group string="Comentarios adicionales">
+                                <field name ="comments" 
+                                    attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                <div>
+                                    <field name ="commentsCoord" />
+                                </div>
+                            </group>
                         </group>
                     </sheet> 
                 </form>
@@ -48,12 +87,7 @@
         </record>
 
 
-        <!--  Vista Form del formulario de informes heredada para profesores 
-    <field name="domain_force">[('profAssesor', '=', uid)]</field>
-
-    domain="[('profAssesor','=',uid)]" 
-                </field>
-            -->
+        <!--  Vista Form del formulario de informes heredada para profesores  -->
         <record model="ir.ui.view"  id="sspp_anteproyecto_form_professor">
             <field name="name">sspp.informesprofesor.form.professor</field>
             <field name="model">sspp.informesprofesor</field>
@@ -63,13 +97,9 @@
                 <field name ="profAssesor" position="attributes" >
                    <attribute name="readonly">1</attribute>
                 </field>
-                <!--
-                <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" />
-                <field name ="dateFiled" />
-                <field name ="description" />
-                <field name ="status" widget="selection"/>
-                <field name ="comments" />
-                -->
+                <field name ="commentsCoord" position="attributes" >
+                   <attribute name="readonly">1</attribute>
+                </field>    
             </field>
         </record>
 
@@ -82,11 +112,14 @@
             <field name="arch" type="xml">
                 <field name ="profAssesor" position="attributes" 
                     >
-                    <!-- eval="[(4, ref('Anteproyectos.user_group_student'))]" -->
+                    <!-- eval="[(4, ref('Anteproyectos.user_group_student'))]"
+                    domain="[('student','=',uid)]"  -->
                     <attribute name="readonly">1</attribute>
                 </field>
-                <field name ="project_id" position="attributes">
+                <field name ="project_id" position="attributes"
+                    >
                     <attribute name="readonly">1</attribute>
+
                 </field>
                 <field name ="dateFiled"  position="attributes">
                     <attribute name="readonly">1</attribute>
@@ -167,7 +200,8 @@
             />
 
          <!--    RECORD RULES -->
-        <record id="informes_student_rule" model="ir.rule">
+         <!--    Regla de vista de informes de grupo Profesores -->
+        <record id="informes_professoer_rule" model="ir.rule">
             <field name="name">Regla de vista de informes de grupo Profesores</field>
             <field name="model_id" ref="model_sspp_informesprofesor"/>
          <!--     By default, all perm_ * are True -->
@@ -180,6 +214,21 @@
         <!--      The "global" field is a calculated field that is automatically
              this shoudl be when project id equals any of my projects -->
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        </record>
+
+        <!--     Regla de vista de informes de grupo Estudiantes -->
+        <record id="informes_student_rule" model="ir.rule">
+            <field name="name">Regla de vista de informes de grupo Profesores</field>
+            <field name="model_id" ref="model_sspp_informesprofesor"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        <!--      If limited to a group :-->
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
+        <!--      complex one 
+        [('company_ids','child_of',[user.company_id.id])] -->
+            <field name="domain_force">[('project_id.student','=',user.id)]</field>
         </record>
 
     </data>

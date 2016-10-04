@@ -36,7 +36,35 @@ class usuarios_users(models.Model): #osv.osv
 	#_name = 'professor.users' #decided skip this step during first iteration
 	topics = fields.Many2many( 'anteproyecto.topics' , 'id', 'name')#, string='Areas de Conocimineto')
 
-	#categ_ids = fields.Many2many(related='anteproyecto.topics', string='Areas de Conocimineto',ondelete='cascade')
+	#student flag, true if belongs to students group
+	isStudent = fields.Boolean()
+	isProfessor = fields.Boolean()
+
+	#probe if user belongs to a group
+	def _get_flag(self):
+		self.isStudent = self.pool.get('res.users').has_group(cr, uid, 'Anteproyectos.user_group_student') 
+
+	_defaults = {
+	'isStudent': False,
+	'isProfessor': False, 
+	}
+
+	@api.onchange('isStudent')
+	def dynamic_student_domain(self):
+		if self.isStudent:
+			self.isProfessor = False
+		else:
+			self.isStudent =False
+			self.isProfessor = True
+
+	@api.onchange('isProfessor')
+	def dynamic_professor_domain(self):
+		if self.isProfessor:
+			self.isStudent = False
+		else:
+			self.isProfessor =False
+			self.isStudent = True
+      
 
 #class res_users_student(osv.osv):
 #    _inherit = 'res.users.user'
