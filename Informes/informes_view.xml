@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <!--  esta especifica la vista de los estudiantes en tipo lista  -->
-        <record id="informes_semanal_tree" model="ir.ui.view">
+        <!--  esta especifica la vista de los informes Profesor-Coordinador en tipo lista (tree)  -->
+        <record id="informes_semanal_P_C_tree" model="ir.ui.view">
             <field name="name">sspp.informesprofesor.tree</field>
             <field name="model">sspp.informesprofesor</field>
             <field name="arch" type="xml">
-                <tree string="Lista De Informes">
+                <tree string="Lista De Informes Profesor-Coordinador">
                     <field name ="profAssesor" />
                     <field name ="project_id" />
                     <field name ="dateFiled" />
@@ -14,10 +14,24 @@
                 </tree>
             </field>
         </record>
+
+        <!--  esta especifica la vista de los estudiantes en tipo lista  -->
+        <record id="informes_semanal_E_P_tree" model="ir.ui.view">
+            <field name="name">sspp.informesestudiante.tree</field>
+            <field name="model">sspp.informesestudiante</field>
+            <field name="arch" type="xml">
+                <tree string="Lista De Informes Estudiante-Profesor">
+                    <field name ="project_id" />
+                    <field name ="dateStart" />
+                    <field name ="dateEnd" />
+                    <field name ="state" />
+                </tree>
+            </field>
+        </record>
      
 
-        <!--  esta especifica la vista de los estudiantes en tipo FOrma, es decir uno x uno -->
-        <record model="ir.ui.view" id="informes_semanal_form" >
+        <!--  esta especifica la vista en tipo Forma de los informes Profesor-Coordinador, es decir uno x uno -->
+        <record model="ir.ui.view" id="informes_semanal_P_C_form" >
             <field name="name">sspp.informesprofesor.form</field>
             <field name="model">sspp.informesprofesor</field>
             <field name="arch" type="xml">
@@ -25,46 +39,29 @@
                     <header>
                         <!-- botones de control, no visibles a los estudiantes o profesores? -->
                         <button name="action_draft" string="Regresar a borrador" type="object"
-                        groups="base.group_no_one"   />
-                        <!--    Anteproyectos.user_group_professor
-                        attrs="{'invisible': [('state','!=','draft')]}"/> -->
-                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight"  
+                            groups="base.group_no_one"   />
+                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight" 
                             groups="base.group_no_one"/>
-                        <!--     Anteproyectos.user_group_professor
-                        attrs="{'invisible': [('state','=','aprove')]}"/> -->
                         <button name="action_reject" string="Rechazar informe" type="object"  
-                            groups="base.group_no_one"/>
-                           <!--
-                        <button name="sort_index_groups" string="sort this crap" type="object"  
-                            groups="base.group_no_one"/>
-                             
-                             Anteproyectos.user_group_professor
-                        attrs="{'invisible': [('state','=','reject')]}"/> -->
-                        
+                            groups="base.group_no_one"/>                        
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet> 
-                        <group > <!-- colspan/col 
+                        <group > <!--  
                             domain="[('groups_id','in',Anteproyectos.user_group_student)]" />
                             context="{'default_groups_ref': ['base.group_no_one']}"
-                            
                             context="{'default_groups_ref': ['Anteproyectos.user_group_student']}"
                             [('company_ids','child_of',[user.company_id.id])]
                             domain="[('groups_id','in','base.group_no_one')]" -> index error
                             domain="[('groups_id','in',[base.group_no_one])]" ->base doesnt exists
                             <field name ="sortField" 
-                                    attrs="{'invisible':[('state','in',['draft','reject','aprove'])]}"/>
-                                    domain="[('category_id.name', '=', 'user_group_professor')]"
-                            
-                        -->
+                                attrs="{'invisible':[('state','in',['draft','reject','aprove'])]}"/>
+                            domain="[('category_id.name', '=', 'user_group_professor')]"       
                             <field name ="student"  widget="selection"
-                                     domain="[('isStudent','=',True)]"
-                                
-                                 />
+                                     domain="[('isStudent','=',True)]"  />
+                                 -->
                             <field name ="profAssesor" 
-                                
                                 />
-
                             <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
                             <field name ="dateFiled" 
@@ -76,9 +73,9 @@
                             <group string="Comentarios adicionales">
                                 <field name ="comments" 
                                     attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
-                                <div>
-                                    <field name ="commentsCoord" />
-                                </div>
+                                
+                                <field name ="commentsCoord" />
+                                
                             </group>
                         </group>
                     </sheet> 
@@ -87,11 +84,61 @@
         </record>
 
 
-        <!--  Vista Form del formulario de informes heredada para profesores  -->
-        <record model="ir.ui.view"  id="sspp_anteproyecto_form_professor">
+        <!--  esta especifica la vista en tipo Form de los informes Estudiante-Profesor, es decir uno x uno -->
+        <record model="ir.ui.view" id="informes_semanal_E_P_form" >
+            <field name="name">sspp.informesestudiante.form</field>
+            <field name="model">sspp.informesestudiante</field>
+            <field name="arch" type="xml">
+                <form string="Informes Semanales" version="7.0">
+                    <header>
+                        <!-- botones de control, no visibles a los estudiantes o profesores? -->
+                        <button name="action_draft" string="Regresar a borrador" type="object"
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"   />
+                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight" 
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"/>
+                        <button name="action_reject" string="Rechazar informe" type="object"  
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"/>                        
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet> 
+                        <group > 
+                            <field name ="project_id"  widget="selection" domain="[('student','=',uid)]" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            
+                            <field name ="dateStart" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            
+                            <field name ="dateEnd" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            
+                            <field name ="tareasPlaneadas" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            
+                            <field name ="tareasRealizadasPlan" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            
+                            <field name ="tareasRealizadasNoPlan" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>   
+
+                            <field name ="tareasARealizar" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
+                            
+                            <group string="Comentarios adicionales">
+                                <field name ="comments" 
+                                    attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            </group>
+                        </group>
+                    </sheet> 
+                </form>
+            </field>
+        </record>
+
+
+        <!--  Vista Form del formulario de informes Profesor-Coordinador heredada para profesores  -->
+        <record model="ir.ui.view"  id="sspp_informe_form_professor_coordinador">
             <field name="name">sspp.informesprofesor.form.professor</field>
             <field name="model">sspp.informesprofesor</field>
-            <field name="inherit_id" ref="Informes.informes_semanal_form"/>
+            <field name="inherit_id" ref="Informes.informes_semanal_P_C_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_professor') ])]"/>
             <field name="arch" type="xml">
                 <field name ="profAssesor" position="attributes" >
@@ -103,11 +150,12 @@
             </field>
         </record>
 
-        <!--  Vista Form del formulario de informes heredada para estudiantes -->
-        <record model="ir.ui.view"  id="sspp_anteproyecto_form_student">
+
+        <!--  Vista Form del formulario de informes P-C heredada para estudiantes -->
+        <record model="ir.ui.view"  id="sspp_informes_p_c_form_student">
             <field name="name">sspp.informesprofesor.form.student</field>
             <field name="model">sspp.informesprofesor</field>
-            <field name="inherit_id" ref="Informes.informes_semanal_form"/>
+            <field name="inherit_id" ref="Informes.informes_semanal_P_C_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
                 <field name ="profAssesor" position="attributes" 
@@ -139,42 +187,55 @@
             </field>
         </record>
 
-        <!--  Vista tree de la lista de informes heredada para profesores -->
+        <!--  Vista Form del formulario de informes Estudiante-Profesor heredada para Estudiantes  -->
+        <record model="ir.ui.view"  id="sspp_informes_e_p_form_student">
+            <field name="name">sspp.informesestudiante.form.estudiante</field>
+            <field name="model">sspp.informesestudiante</field>
+            <field name="inherit_id" ref="Informes.informes_semanal_E_P_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml">
+                <field name ="profAssesor" position="attributes" >
+                   <attribute name="readonly">1</attribute>
+                </field>
+                <field name ="project_id" position="attributes" >
+                   <attribute name="readonly">1</attribute>
+                </field>    
+            </field>
+        </record>
+
+        
+
+        <!--  Vista tree de la lista de informes heredada P-C para profesores -->
         <record model="ir.ui.view"  id="sspp_informe_tree_professor_inherited">
             <field name="name">sspp.informesprofesor.tree.professor</field>
             <field name="model">sspp.informesprofesor</field>
-            <field name="inherit_id" ref="Informes.informes_semanal_tree"/>
+            <field name="inherit_id" ref="Informes.informes_semanal_P_C_tree"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_professor') ])]"/>
-            <field name="arch" type="xml"> <!--
-                <filter name ="sspp_anteproyecto_tree_student_filter" string="Lista De Anteproyectos filter" domain="[('user_id','=',uid)]"/> 
-                <field name="state" position="after">
-                <field name ="generalObjetive" string="Objetivo General" domain="[('create_uid','=',user.id)]"/> -->
+            <field name="arch" type="xml"> 
                 <field name="project_id" />
                 <field name="status" position="after"/> <!-- before/inside/replace -->
                 <field name ="dateFiled" />
-                                 
             </field>
         </record>
 
-        <!--  Vista tree del formulario de anteproyecto heredada para estudiantes -->
-        <record model="ir.ui.view"  id="sspp_informe_tree_student_inherited">
-            <field name="name">sspp.informesprofesor.tree.student</field>
-            <field name="model">sspp.informesprofesor</field>
-            <field name="inherit_id" ref="Informes.informes_semanal_tree"/>
-            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
-            <field name="arch" type="xml"> <!--
-                <filter name ="sspp_anteproyecto_tree_student_filter" string="Lista De Anteproyectos filter" domain="[('user_id','=',uid)]"/> 
-                <field name="state" position="after">
-                <field name ="generalObjetive" string="Objetivo General" domain="[('create_uid','=',user.id)]"/>
-                -->
-                <field name="status" />
-                <field name="dateFiled" />
-            </field>
-        </record>
+        <!--  Aqui iban las vistas TREE heredadas por grupo -->
+       
         
+        <!--  menu de creacion y vista de informes Estudiante-Profesor -->
+        <record id="sspp_informes_E_P_action" model="ir.actions.act_window">
+            <field name="name">Informes Semanales</field>
+            <field name="res_model">sspp.informesestudiante</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar un nuevo informe.
+              </p>
+            </field>
+        </record>
 
-        <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
-        <record id="sspp_informes_action" model="ir.actions.act_window">
+        <!--  menu de creacion y vista de informes Profesor-Coordinador -->
+        <record id="sspp_informes_P_C_action" model="ir.actions.act_window">
             <field name="name">Informes de Avance</field>
             <field name="res_model">sspp.informesprofesor</field>
             <field name="view_type">form</field>
@@ -191,18 +252,20 @@
             />
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_informes" parent="sspp_informes_menu" name="Informes sidebar" 
+        <menuitem id="submenu_sspp_informe" parent="sspp_informes_menu" name="Informes del proyecto" />
+
+        <!-- esta es la opcion del menu izquierdo para informes estudiante profesor  -->
+        <menuitem id="submenu_sspp_informes_E_P_action" parent="submenu_sspp_informe" name=" Estudiante-Profesor" action ="sspp_informes_E_P_action" sequence="5"
             />
 
-
-        <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_informes_action" parent="submenu_sspp_informes" name="Informes" action ="sspp_informes_action"
+        <!-- esta es la opcion del menu izquierdo para informes profesor coodrinador-->
+        <menuitem id="submenu_sspp_informes_P_C_action" parent="submenu_sspp_informe" name=" Profesor-Coordinador" action ="sspp_informes_P_C_action" sequence="10"
             />
 
          <!--    RECORD RULES -->
-         <!--    Regla de vista de informes de grupo Profesores -->
-        <record id="informes_professoer_rule" model="ir.rule">
-            <field name="name">Regla de vista de informes de grupo Profesores</field>
+         <!--    Regla de vista de informes P-C de grupo Profesores -->
+        <record id="informes_p_c_professor_rule" model="ir.rule">
+            <field name="name">Regla de vista de informes P-C de grupo Profesores</field>
             <field name="model_id" ref="model_sspp_informesprofesor"/>
          <!--     By default, all perm_ * are True -->
             <field name="perm_read" eval="True"/>
@@ -213,22 +276,43 @@
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
         <!--      The "global" field is a calculated field that is automatically
              this shoudl be when project id equals any of my projects -->
-            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="domain_force">[('project_id.profAssesor', '=', user.id)]</field>
         </record>
 
-        <!--     Regla de vista de informes de grupo Estudiantes -->
-        <record id="informes_student_rule" model="ir.rule">
-            <field name="name">Regla de vista de informes de grupo Profesores</field>
+        <!--     Regla de vista de informes P-C de grupo Estudiantes -->
+        <record id="informes_p_c_student_rule" model="ir.rule">
+            <field name="name">Regla de vista de informes P-C de grupo Estudiantes</field>
             <field name="model_id" ref="model_sspp_informesprofesor"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-        <!--      If limited to a group :-->
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
-        <!--      complex one 
-        [('company_ids','child_of',[user.company_id.id])] -->
             <field name="domain_force">[('project_id.student','=',user.id)]</field>
+        </record>
+
+        <!--    Regla de vista de informes E-P de grupo Estudiantes -->
+        <record id="informes_e_p_student_rule" model="ir.rule">
+            <field name="name">Regla de vista de informes E-P de grupo Estudiantes</field>
+            <field name="model_id" ref="model_sspp_informesestudiante"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
+            <field name="domain_force">[('project_id.student', '=', user.id)]</field>
+        </record>
+
+        <!--     Regla de vista de informes E-P de grupo Profesores -->
+        <record id="informes_e_p_professor_rule" model="ir.rule">
+            <field name="name">Regla de vista de informes E-P de grupo Profesores</field>
+            <field name="model_id" ref="model_sspp_informesestudiante"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
+            <field name="domain_force">[('project_id.profAssesor','=',user.id)]</field>
         </record>
 
     </data>

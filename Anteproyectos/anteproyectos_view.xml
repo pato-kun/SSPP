@@ -39,11 +39,14 @@
                     <header>
 
                         <!-- botones de control, no visibles a los estudiantes o profesores? -->
-                        <button name="action_draft" string="Regresar a borrador" type="object"   />
+                        <button name="action_draft" string="Regresar a borrador" type="object"   
+                            groups="base.group_no_one" />
                         <!--    attrs="{'invisible': [('state','!=','draft')]}"/> -->
-                        <button name="action_aprove" string="Aprobar anteproyecto" type="object"  class="oe_highlight" />
+                        <button name="action_aprove" string="Aprobar anteproyecto" type="object" 
+                        groups="base.group_no_one" class="oe_highlight" />
                         <!--     attrs="{'invisible': [('state','=','aprove')]}"/> -->
-                        <button name="action_reject" string="Rechazar anteproyecto" type="object"  />
+                        <button name="action_reject" string="Rechazar anteproyecto" type="object"  
+                            groups="base.group_no_one" />
                         <!--     attrs="{'invisible': [('state','=','reject')]}"/> -->
                         
                         <field name="state" widget="statusbar"/>
@@ -51,10 +54,10 @@
                     </header>
                     <sheet>
                     
-                        <group  string="Nombre"> 
+                        <group  col="4" string="Datos generales"> 
                         <!-- colspan/col -->
-                            <field name ="name"/>
-                        </group>
+                            <field name ="name" string="Nombre"/>
+                       
 
                         <group string="Estudiante"> 
                             <field name ="student"  domain="[('isStudent','=',True)]" />
@@ -79,6 +82,7 @@
                             <field name ="profAssesor" domain="[('isProfessor','=',True)]"/>
 
                         </group>
+                        </group>
 
                         <!-- ultimo cambio added this group-->
                         <group string="Areas de estudio"> 
@@ -95,7 +99,7 @@
                             <field name ="actualTask" string="Trabajos a realizar"/>
 
                         </group>
-                        <group col="4" string="Especificaciones del proyecto">
+                        <group  string="Especificaciones del proyecto">
                             <field name ="generalObjetive" string="Objetivo General"/>
                             <field name ="specificObjective" string="Objetivos Especificos"/>
                             <field name ="metodology" string="Metodologia"/>
@@ -219,7 +223,7 @@
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
         <!--      The "global" field is a calculated field that is automatically
              True is groups = False -->
-            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="domain_force">[('student', '=', user.id)]</field>
             
         </record>
 

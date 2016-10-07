@@ -39,7 +39,7 @@ class informesprofesor(models.Model):
 	_description = 'Formulario De Informes Profesor-coordinador'
 
 	#name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
-	student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
+	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
 		#,domain="[('isStudent2','=',True)]"  )
 		#, domain=[(_get_students(self))]) #,default=lambda self: self.env.user )
 	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
@@ -54,6 +54,61 @@ class informesprofesor(models.Model):
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
 	#sortField = fields.Boolean(compute='sort_index_groups')
 
+	@api.multi
+	def action_draft(self):
+		self.state = 'draft'
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+	@api.one
+	def action_reject(self):
+		self.write({
+	    'state': 'reject',
+		})
+		#self.state = 'reject'
+
+	_defaults = {
+		'profAssesor': lambda obj, cr, uid, context: uid,
+		#'student': lambda self, cr, uid, context:self._get_students(self),
+		'state': 'draft', 
+	}
+
+
+class informesestudiante(models.Model):
+	#_inherit = 'prof.category'
+	_name = 'sspp.informesestudiante'
+	_description = 'Formulario De Informes Estudiantes-Profesor'
+
+	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
+	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
+	project_id = fields.Many2one('sspp.anteproyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	dateStart= fields.Date(string='Fecha inicio')
+	dateEnd= fields.Date(string='Fecha final')
+	tareasPlaneadas = fields.Char('Actividades planeadas para este periodo', size=512, requiered=True, help='Tareas planeadas para este periodo')
+	tareasRealizadasPlan = fields.Char('Actividades realizadas segun lo planeado', size=512, requiered=True, help='Tareas realizadas')
+	tareasRealizadasNoPlan = fields.Char('Actividades realizadas que no estaban planeadas', size=512, requiered=True, help='Tareas Planeadas no planeadas')
+	tareasARealizar = fields.Char('Actividades por realizar el próximo periodo', size=512, requiered=True, help='Tareas para el próximo periodo')
+	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
+	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del informes', default= 'draft')
+
+	@api.multi
+	def action_draft(self):
+		self.state = 'draft'
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+	@api.one
+	def action_reject(self):
+		self.write({
+	    'state': 'reject',
+		})
+		#self.state = 'reject'
+
+	_defaults = {
+		#'profAssesor': lambda obj, cr, uid, context: uid,
+		#'student': lambda self, cr, uid, context:self._get_students(self),
+		'state': 'draft', 
+	}
 
 	# @api.multi
 	# def sort_index_groups(self):
@@ -131,24 +186,7 @@ class informesprofesor(models.Model):
 		    
 	    
 
-	@api.multi
-	def action_draft(self):
-		self.state = 'draft'
-	@api.one
-	def action_aprove(self):
-		self.state = 'aprove'
-	@api.one
-	def action_reject(self):
-		self.write({
-	    'state': 'reject',
-		})
-		#self.state = 'reject'
-
-	_defaults = {
-		'profAssesor': lambda obj, cr, uid, context: uid,
-		#'student': lambda self, cr, uid, context:self._get_students(self),
-		'state': 'draft', 
-	}
+	
 	#@api.onchange(student)
 	#def dynamic_student_domain(self):
     #  return {'domain': {'student': [('student.groups_id','in',['Anteproyectos.user_group_student'])]}}

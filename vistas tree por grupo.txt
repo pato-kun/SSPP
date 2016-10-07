@@ -1,0 +1,39 @@
+<!--  Vista tree del formulario de informes P-C heredada para estudiantes -->
+        <record model="ir.ui.view"  id="sspp_informe_tree_student_inherited">
+            <field name="name">sspp.informesprofesor.tree.student</field>
+            <field name="model">sspp.informesprofesor</field>
+            <field name="inherit_id" ref="Informes.informes_semanal_P_C_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml"> 
+                <field name="status" />
+                <field name="dateFiled" />
+            </field>
+        </record>
+
+        <!--  Vista tree de la lista de informes E-P heredada para profesores -->
+        <record model="ir.ui.view"  id="sspp_informe_tree_professor_inherited">
+            <field name="name">sspp.informesestudiante.tree.professor</field>
+            <field name="model">sspp.informesestudiante</field>
+            <field name="inherit_id" ref="Informes.informes_semanal_E_P_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_professor') ])]"/>
+            <field name="arch" type="xml"> 
+                <field name="project_id" />
+                <field name="status" position="after"/> <!-- before/inside/replace -->
+                <field name ="dateStart" />
+                <field name ="dateEnd" />
+            </field>
+        </record>
+
+        <!--  Vista tree del formulario de informes E-P heredada para estudiantes -->
+        <record model="ir.ui.view"  id="sspp_informe_tree_student_inherited">
+            <field name="name">sspp.informesestudiante.tree.student</field>
+            <field name="model">sspp.informesestudiante</field>
+            <field name="inherit_id" ref="Informes.informes_semanal_E_P_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml"> 
+                <field name="project_id" />
+                <field name="status" />
+                <field name ="dateStart" />
+                <field name ="dateEnd" />
+            </field>
+        </record>
