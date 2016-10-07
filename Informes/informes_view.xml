@@ -194,11 +194,8 @@
             <field name="inherit_id" ref="Informes.informes_semanal_E_P_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
-                <field name ="profAssesor" position="attributes" >
-                   <attribute name="readonly">1</attribute>
-                </field>
-                <field name ="project_id" position="attributes" >
-                   <attribute name="readonly">1</attribute>
+                <field name ="project_id" position="attributes" widget="selection" domain="[('student','=',uid)]" >
+                   <!-- <attribute name="readonly">1</attribute> -->
                 </field>    
             </field>
         </record>
