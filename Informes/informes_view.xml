@@ -61,7 +61,7 @@
                                      domain="[('isStudent','=',True)]"  />
                                  -->
                             <field name ="profAssesor" 
-                                />
+                                domain="[('isProfessor','=',True)]"/>
                             <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
                             <field name ="dateFiled" 
@@ -184,6 +184,38 @@
                 <field name ="state" position="attributes">
                     <attribute name="readonly">1</attribute>
                 </field> 
+            </field>
+        </record>
+
+        <!--  Vista search de imformes 
+        <filter name="by_student" string="Estudiante"
+                        context="{'group_by': 'self.project_id.student'}"/>
+                         -->
+        <record model="ir.ui.view" id="informesprofesor_search_view">
+            <field name="name">sspp.informesprofesor.search</field>
+            <field name="model">sspp.informesprofesor</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <field name="profAssesor"/>
+                <field name="project_id"/>
+                <field name="status" />
+                <filter name="non_approved" string="Informes sin aprobar"
+                domain="[('state', '=', 'draft')]"/>
+                <filter name="approved" string="Informes aprobados"
+                domain="[('state', '=', 'aprove')]"/>
+                <group string="Agrupar por">  
+                    
+                    <filter name="by_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+                    <filter name="by_professor" string="Profesor"
+                        context="{'group_by': 'profAssesor'}"/>
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="Group Students by Year" />
+                    <filter name="by_carnet" string="Carné"
+                        context="{'group_by': 'carnet'}"/>
+                </group>
+            </search>
             </field>
         </record>
 

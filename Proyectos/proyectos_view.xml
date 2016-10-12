@@ -2,24 +2,12 @@
 <openerp>
     <data>
 
-        <!-- Creates the user groups   -->
-        <record id="user_group_student" model="res.groups">
-            <field name="name">Grupo Estudiantes</field>
-            <field name="category_id" ref="base.module_category_usuarios"/>
-        </record>
-
-        <record id="user_group_professor" model="res.groups">
-            <field name="name">Grupo Profesores</field>
-            <field name="category_id" ref="base.module_category_usuarios"/>
-        </record>
-
-
         <!--  esta especifica la vista de los estudiantes en tipo lista -->
-        <record id="sspp_anteproyecto_tree" model="ir.ui.view">
-            <field name="name">sspp.anteproyecto.tree</field>
-            <field name="model">sspp.anteproyecto</field>
+        <record id="sspp_proyecto_tree" model="ir.ui.view">
+            <field name="name">sspp.proyecto.tree</field>
+            <field name="model">sspp.proyecto</field>
             <field name="arch" type="xml">
-                <tree string="Lista De Anteproyectos">
+                <tree string="Lista De proyecto">
                     <field name ="name" />
                     <field name ="student" />
                     <field name ="state" />
@@ -31,11 +19,11 @@
      
 
         <!--  Vista Form del formulario de anteproyecto -->
-        <record id="sspp_anteproyecto_form" model="ir.ui.view">
-            <field name="name">sspp.anteproyecto.form</field>
-            <field name="model">sspp.anteproyecto</field>
+        <record id="sspp_proyecto_form" model="ir.ui.view">
+            <field name="name">sspp.proyecto.form</field>
+            <field name="model">sspp.proyecto</field>
             <field name="arch" type="xml">
-                <form string="Anteproyecto" version="7.0">
+                <form string="proyecto" version="7.0">
                     <header>
 
                         <!-- botones de control, no visibles a los estudiantes o profesores? -->
@@ -84,9 +72,8 @@
                         </group>
 
                         <group string="Profesor Asesor"> 
-                            <field name ="profAssesor" 
-                                domain="[('topics','in',topics[0][2])]"/>
-                            <!-- ^ many2many domain filter ^ -->
+                            <field name ="profAssesor" domain="[('isProfessor','=',True)]"/>
+
                         </group>
                         </group>
 
@@ -132,10 +119,10 @@
 
         <!--  Vista Form del formulario de anteproyecto heredada para estudiantes debe prevenir que 
         el estudiante no edite el campo profesor asesor ni el estudiante del proyecto-->
-        <record model="ir.ui.view"  id="sspp_anteproyecto_form_student">
-            <field name="name">sspp.anteproyecto.form.student</field>
-            <field name="model">sspp.anteproyecto</field>
-            <field name="inherit_id" ref="Anteproyectos.sspp_anteproyecto_form"/>
+        <record model="ir.ui.view"  id="sspp_proyecto_form_student">
+            <field name="name">sspp.proyecto.form.student</field>
+            <field name="model">sspp.proyecto</field>
+            <field name="inherit_id" ref="Proyectos.sspp_proyecto_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
                 
@@ -158,9 +145,9 @@
 
         <!--  Vista search de anteproyectos  -->        
 
-        <record model="ir.ui.view" id="anteproyecto_search_view">
-            <field name="name">sspp.anteproyecto.search</field>
-            <field name="model">sspp.anteproyecto</field>
+        <record model="ir.ui.view" id="proyecto_search_view">
+            <field name="name">sspp.proyecto.search</field>
+            <field name="model">sspp.proyecto</field>
             <field name="arch" type="xml">
             <search string="Buscar">
                 <field name="name"/>
@@ -191,9 +178,9 @@
         </record>
 
         <!--  Vista kanban del formulario de anteproyecto -->
-        <record model="ir.ui.view" id="view_anteproyecto_kanban">
-        <field name="name">sspp.anteproyecto.kanban</field>
-        <field name="model">sspp.anteproyecto</field>
+        <record model="ir.ui.view" id="view_proyecto_kanban">
+        <field name="name">sspp.proyecto.kanban</field>
+        <field name="model">sspp.proyecto</field>
             <field name="arch" type="xml">
                 <kanban default_group_by="state">
                     <templates>
@@ -223,9 +210,9 @@
 
 
         <!--  Vista tree del formulario de anteproyecto heredada para estudiantes -->
-        <record model="ir.ui.view"  id="sspp_anteproyecto_tree_student_inherited">
-            <field name="name">sspp.anteproyecto.tree.student</field>
-            <field name="model">sspp.anteproyecto</field>
+        <record model="ir.ui.view"  id="sspp_proyecto_tree_student_inherited">
+            <field name="name">sspp.proyecto.tree.student</field>
+            <field name="model">sspp.proyecto</field>
             <field name="inherit_id" ref="Anteproyectos.sspp_anteproyecto_tree"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml"> <!--
@@ -237,43 +224,11 @@
         
 
 
-        <!-- configuracion del submenu de tags -->
-        <record model="ir.ui.view" id="anteprojecto_category_search_view">
-            <field name="name">TagsSearch</field>
-            <field name="model">anteproyecto.topics</field>
-            <field name="arch" type="xml">
-                <search string="Issue Version">
-                    <field name="name"/>
-                </search>
-            </field>
-        </record>
-        <record model="ir.ui.view" id="anteprojecto_category_form_view">
-            <field name="name">TagsForm</field>
-            <field name="model">anteproyecto.topics</field>
-            <field name="arch" type="xml">
-                <form string="Tags">
-                    <group col="4">
-                        <field name="name"/>
-                    </group>
-                </form>
-            </field>
-        </record>
-        <record id="anteprojecto_category_action" model="ir.actions.act_window">
-            <field name="name">Etiquetas de tema</field>
-            <field name="res_model">anteproyecto.topics</field>
-            <field name="view_type">form</field>
-            <field name="help" type="html">
-              <p class="oe_view_nocontent_create">
-                Click para agregar un nuevo tema.
-              </p>
-            </field>
-        </record>
-        <!-- end test -->
 
         <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
-        <record id="sspp_anteproyecto_action" model="ir.actions.act_window">
-            <field name="name">Anteproyectos</field>
-            <field name="res_model">sspp.anteproyecto</field>
+        <record id="sspp_proyecto_action" model="ir.actions.act_window">
+            <field name="name">proyecto</field>
+            <field name="res_model">sspp.proyecto</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field> <!-- tree -->
             <field name="help" type="html">
@@ -284,25 +239,22 @@
         </record>
 
         <!-- esta es la opcion del menu principal para el modulo -->
-        <menuitem id="sspp_anteproyecto_menu" name="Anteproyectos"
+        <menuitem id="sspp_proyecto_menu" name="proyecto"
             />
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" 
+        <menuitem id="submenu_sspp_proyecto" parent="sspp_proyecto_menu" name="proyecto sidebar" 
             />
 
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto_action" parent="submenu_sspp_anteproyecto" name="Anteproyectos" action ="sspp_anteproyecto_action"
-            />
-
-        <menuitem id="submenu_sspp_anteproyecto_tags" parent="submenu_sspp_anteproyecto" name="Etiquetas de tema"  action ="anteprojecto_category_action"
+        <menuitem id="submenu_sspp_proyecto_action" parent="submenu_sspp_proyecto" name="proyecto" action ="sspp_proyecto_action"
             />
 
          <!--    RECORD RULES -->
-        <record id="anteproyecto_student_rule" model="ir.rule">
-            <field name="name">Regla de autoria de anteproyectos grupo estudiantes</field>
-            <field name="model_id" ref="model_sspp_anteproyecto"/>
+        <record id="proyecto_student_rule" model="ir.rule">
+            <field name="name">Regla de autoria de proyecto grupo estudiantes</field>
+            <field name="model_id" ref="model_sspp_proyecto"/>
          <!--     By default, all perm_ * are True -->
             <field name="perm_read" eval="True"/>
             <field name="perm_create" eval="True"/>
@@ -317,9 +269,9 @@
         </record>
 
         <!--     Regla de vista de anteproyectos de grupo Profesores -->
-        <record id="anteproyecto_professor_rule" model="ir.rule">
-            <field name="name">Regla de vista de anteproyectos de grupo Profesores</field>
-            <field name="model_id" ref="model_sspp_anteproyecto"/>
+        <record id="proyecto_professor_rule" model="ir.rule">
+            <field name="name">Regla de vista de proyecto de grupo Profesores</field>
+            <field name="model_id" ref="model_sspp_proyecto"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_write" eval="True"/>

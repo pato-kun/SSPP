@@ -42,18 +42,41 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <field name="company_id" position="after">
-                <attribute name="string">Areas de conocimiento</attribute>
-                <field name="topics"  widget="many2many_tags"/>
+                
                 <group col="4" string="Tipo de usuario">
                     <field name="isStudent" string="Usuario Estudiante:"/>
                     <field name="isProfessor" string="Usuario Profesor:"/>
+                </group>
+
+                <group>
+                
+                    <field name="topics"  widget="many2many_tags" string="Areas de conocimineto"
+                        attrs="{'readonly':[('isProfessor', '!=', True)]}"
+                        placeholder="Ej: Logisitca, Base de datos.."/>
+                </group>
+
+                <group>
+                    <field name="cantStudents"  string="Cantidad de estudiantes que puede asesorar"
+                        attrs="{'readonly':[('isProfessor', '!=', True)]}"/>
+                </group>
+
+                <group>
+                        
+                        <!-- remove requiered to allow student to fill their own profile-->
+                <field name="carnet"  string="Carné"
+
+                    attrs="{'required':[('isStudent','=',True)] , 'readonly':[('isStudent', '!=', True)]}"
+                    placeholder="No. de carné"/>
                 </group>
             </field>
             </field>
         </record>
 
        
-        <!-- Creates the user groups  
+        <!-- Creates the user groups 
+        <attribute name="string">Areas de conocimiento</attribute>
+        <attribute name="string">No. de carné</attribute>
+
         <record id="user_group_student" model="res.groups">
             <field name="name">Grupo Estudiantes</field>
             <field name="category_id" ref="base.module_category_usuarios"/>

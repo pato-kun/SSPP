@@ -26,6 +26,7 @@
 
 from openerp.tools.translate import _
 from openerp import api, models, fields
+from openerp.api import Environment
 import time
 
 
@@ -36,6 +37,7 @@ class anteproyecto(models.Model):
 
 	name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
 	student = fields.Many2one('res.users' ,  ondelete='set null', string="Estudiante", index=True ) #,default=lambda self: self.env.user )
+	carnet = fields.Integer()
 	company = fields.Many2one('res.partner', 'Empresa',requiered=True)
 	companyContact = fields.Many2one('res.partner', ondelete='set null', string="Contacto de la Empresa", index=True )
 	companyAssesor = fields.Many2one('res.partner', ondelete='set null', string="Asesor en la Empresa", index=True )
@@ -52,15 +54,18 @@ class anteproyecto(models.Model):
 	tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
 	topics = fields.Many2many('anteproyecto.topics', string='Areas de estudio',ondelete='cascade')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
+	comments = fields.Char('Comentarios', size=256 , help='Comentarios de Coordinación')
 
-	
+	@api.onchange('student')
+	def _set_carnet(self):
+		self.carnet = self.student.carnet
 
 	@api.multi
 	def action_draft(self):
 		self.state = 'draft'
-	@api.one
-	def action_aprove(self):
-		self.state = 'aprove'
+	# @api.one
+	# def action_aprove(self):
+	# 	self.state = 'aprove'
 	@api.one
 	def action_reject(self):
 		self.write({
@@ -68,24 +73,48 @@ class anteproyecto(models.Model):
 		})
 		#self.state = 'reject'
 
+	#here
+	#@api.v8 
+	#@api.multi
+	#@api.depends('anteproyecto.topics')
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+		tags = []
+		for item in self.topics:
+			tags.append(item.id)
+		id_project = self.env['sspp.proyecto'].create({
+			'name' : self.name,
+			'student' : self.student.id,
+			'carnet' : self.carnet,
+			'company' : self.company.id,
+			'companyContact' : self.companyContact.id,
+			'companyAssesor' : self.companyAssesor.id,
+			'profAssesor' : self.profAssesor.id,
+			'possibleTasks' : self.possibleTasks,
+			'actualTask' : self.actualTask,
+			'generalObjetive' : self.generalObjetive,
+			'specificObjective' : self.specificObjective,
+			'metodology' : self.metodology,
+			'tools' : self.tools,
+			'topics' : [(6, 0, tags)],
+			'state' : self.state,
+			'comments' : self.comments
+		})
+		self.env.cr.commit()
+
+		# return {
+		# 	'warning': {
+		# 		'title': " Aviso",
+		# 		'message': tags,
+		# 	},
+		# }
+
 	_defaults = {
 		'student': lambda obj, cr, uid, context: uid,
 		'state': 'draft', 
 	}
-	
-	#@api.onchange(student)
-	#def dynamic_student_domain(self):
-    #  return {'domain': {'student': [('student.groups_id','in',['Anteproyectos.user_group_student'])]}}
-
-	
-#class res_users_student(osv.osv):
-#    _inherit = 'res.users.user'
-#    _name = 'student'
-#    _columns = { 'categ_ids': fields.many2many('professor.category', string='Tags'), }
-#    @api.model
-#    def create(self, values):
-#        return super(User, self).create(values)
-    
+	    
 
 class anteproyecto_tema(models.Model):
 	""" Area que conocimiento que abarca """
@@ -98,17 +127,5 @@ class anteproyecto_tema(models.Model):
     # User can read a few of his own fields
     #SELF_READABLE_FIELDS = ['profAssesor'] 
 
-
-#class contacto_empresa_partner(models.Model): #osv.osv
-#    _inherit = 'res.partner'
-    #_name = 'contacto.partner' #decided skip this step during first iteration
-    
-
-#class asesor_empresa_partner(models.Model):
-#    _inherit = 'res.partner'
-    #_name = 'asesor.partner'
-
-#    def create(self, values):
-#        return super(User, self).create(values)
     
 
