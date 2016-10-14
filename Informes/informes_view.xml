@@ -59,9 +59,10 @@
                             domain="[('category_id.name', '=', 'user_group_professor')]"       
                             <field name ="student"  widget="selection"
                                      domain="[('isStudent','=',True)]"  />
+                                     domain="[('isProfessor','=',True)]"
                                  -->
                             <field name ="profAssesor" 
-                                domain="[('isProfessor','=',True)]"/>
+                                />
                             <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
                             <field name ="dateFiled" 
@@ -76,6 +77,57 @@
                                 
                                 <field name ="commentsCoord" />
                                 
+                            </group>
+                        </group>
+                    </sheet> 
+                </form>
+            </field>
+        </record>
+
+         <!--  esta especifica la vista en tipo Forma de los reportes de reunion -->
+        <record model="ir.ui.view" id="informes_minutas_form" >
+            <field name="name">sspp.minutas.form</field>
+            <field name="model">sspp.minutas</field>
+            <field name="arch" type="xml">
+                <form string="Minutas de Reunión" version="7.0">
+                    <header>
+                        <!-- botones de control, no visibles a los estudiantes o profesores? -->
+                        <button name="action_draft" string="Regresar a borrador" type="object"
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"   />
+                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight" 
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"/>
+                        <button name="action_reject" string="Rechazar informe" type="object"  
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"/>                        
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet> 
+                        <group > <!--  
+                            domain="[('groups_id','in',Anteproyectos.user_group_student)]" />
+                            context="{'default_groups_ref': ['base.group_no_one']}"
+                            context="{'default_groups_ref': ['Anteproyectos.user_group_student']}"
+                            [('company_ids','child_of',[user.company_id.id])]
+                            domain="[('groups_id','in','base.group_no_one')]" -> index error
+                            domain="[('groups_id','in',[base.group_no_one])]" ->base doesnt exists
+                            <field name ="sortField" 
+                                attrs="{'invisible':[('state','in',['draft','reject','aprove'])]}"/>
+                            domain="[('category_id.name', '=', 'user_group_professor')]"       
+                            <field name ="student"  widget="selection"
+                                     domain="[('isStudent','=',True)]"  />
+                                     domain="[('isProfessor','=',True)]"
+                                 -->
+                            <field name ="profAssesor" 
+                                />
+                            <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <field name ="dateDone" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <field name ="dateDone" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
+                            <field name ="pointers" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <group string="Comentarios adicionales">
+                                <field name ="comments" 
+                                    attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
                             </group>
                         </group>
                     </sheet> 
@@ -219,6 +271,37 @@
             </field>
         </record>
 
+        <!--  Vista search de minutas
+        <filter name="by_carnet" string="Carné"
+                        context="{'group_by': 'carnet'}"/>
+                         -->
+        <record model="ir.ui.view" id="minutas_search_view">
+            <field name="name">sspp.minutas.search</field>
+            <field name="model">sspp.minutas</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <field name="profAssesor"/>
+                <field name="project_id"/>
+                <field name="dateDone" />
+                <filter name="non_approved" string="Informes sin aprobar"
+                    domain="[('state', '=', 'draft')]"/>
+                <filter name="approved" string="Informes aprobados"
+                    domain="[('state', '=', 'aprove')]"/>
+                <group string="Agrupar por">  
+                    
+                    <filter name="by_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+                    <filter name="by_professor" string="Profesor"
+                        context="{'group_by': 'profAssesor'}"/>
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="Agrupar minutas por año" />
+                    
+                </group>
+            </search>
+            </field>
+        </record>
+
         <!--  Vista Form del formulario de informes Estudiante-Profesor heredada para Estudiantes  -->
         <record model="ir.ui.view"  id="sspp_informes_e_p_form_student">
             <field name="name">sspp.informesestudiante.form.estudiante</field>
@@ -228,6 +311,19 @@
             <field name="arch" type="xml">
                 <field name ="project_id" position="attributes" widget="selection" domain="[('student','=',uid)]" >
                    <!-- <attribute name="readonly">1</attribute> -->
+                </field>    
+            </field>
+        </record>
+
+        <!--  Vista Form del formulario de minutas heredada para Estudiantes  -->
+        <record model="ir.ui.view"  id="sspp_informes_minutas_form_student">
+            <field name="name">sspp.minutas.form.estudiante</field>
+            <field name="model">sspp.minutas</field>
+            <field name="inherit_id" ref="Informes.informes_minutas_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml">
+                <field name ="profAssesor" position="attributes" >
+                   <attribute name="readonly">1</attribute> 
                 </field>    
             </field>
         </record>
@@ -276,12 +372,28 @@
             </field>
         </record>
 
+        <!--  menu de creacion y vista de Minutas -->
+        <record id="sspp_minutas_action" model="ir.actions.act_window">
+            <field name="name">Minutas</field>
+            <field name="res_model">sspp.minutas</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar una nueva entrada.
+              </p>
+            </field>
+        </record>
+
         <!-- esta es la opcion del menu principal para el modulo -->
         <menuitem id="sspp_informes_menu" name="Informes"
             />
 
-        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <!-- esta es la opcion del menu izquierdo, parent -->
         <menuitem id="submenu_sspp_informe" parent="sspp_informes_menu" name="Informes del proyecto" />
+
+        <!-- esta es la opcion del menu izquierdo, parent -->
+        <menuitem id="submenu_sspp_minutas" parent="sspp_informes_menu" name="Bitácora" />
 
         <!-- esta es la opcion del menu izquierdo para informes estudiante profesor  -->
         <menuitem id="submenu_sspp_informes_E_P_action" parent="submenu_sspp_informe" name=" Estudiante-Profesor" action ="sspp_informes_E_P_action" sequence="5"
@@ -289,6 +401,10 @@
 
         <!-- esta es la opcion del menu izquierdo para informes profesor coodrinador-->
         <menuitem id="submenu_sspp_informes_P_C_action" parent="submenu_sspp_informe" name=" Profesor-Coordinador" action ="sspp_informes_P_C_action" sequence="10"
+            />
+
+        <!-- esta es la opcion del menu izquierdo para informes profesor coodrinador-->
+        <menuitem id="submenu_sspp_minutas_action" parent="submenu_sspp_minutas" name=" Minutas de reunión" action ="sspp_minutas_action" sequence="5"
             />
 
          <!--    RECORD RULES -->
@@ -336,6 +452,30 @@
         <record id="informes_e_p_professor_rule" model="ir.rule">
             <field name="name">Regla de vista de informes E-P de grupo Profesores</field>
             <field name="model_id" ref="model_sspp_informesestudiante"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
+            <field name="domain_force">[('project_id.profAssesor','=',user.id)]</field>
+        </record>
+
+        <!--    Regla de vista de minutas de grupo Estudiantes -->
+        <record id="minutas_student_rule" model="ir.rule">
+            <field name="name">Regla de vista de minutas de grupo Estudiantes</field>
+            <field name="model_id" ref="model_sspp_minutas"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
+            <field name="domain_force">[('project_id.student', '=', user.id)]</field>
+        </record>
+
+        <!--     Regla de vista de minutas de grupo Profesores -->
+        <record id="minutas_professor_rule" model="ir.rule">
+            <field name="name">Regla de vista de minutas de grupo Profesores</field>
+            <field name="model_id" ref="model_sspp_minutas"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_write" eval="True"/>

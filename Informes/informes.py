@@ -110,6 +110,38 @@ class informesestudiante(models.Model):
 		'state': 'draft', 
 	}
 
+
+class minutas(models.Model):
+	#_inherit = 'prof.category'
+	_name = 'sspp.minutas'
+	_description = 'Formulario De Minutas'
+
+	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
+	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
+	project_id = fields.Many2one('sspp.anteproyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	dateDone= fields.Date(string='Fecha de reunión')
+	pointers = fields.Html('Puntos tratados y acuerdos',  requiered=True, help='Acuerdos y puntos tratados')
+	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
+	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado de la minuta', default= 'draft')
+
+	@api.multi
+	def action_draft(self):
+		self.state = 'draft'
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+	@api.one
+	def action_reject(self):
+		self.write({
+	    'state': 'reject',
+		})
+		#self.state = 'reject'
+
+	_defaults = {
+		#'profAssesor': lambda obj, cr, uid, context: uid,
+		#'student': lambda self, cr, uid, context:self._get_students(self),
+		'state': 'draft', 
+	}
 	# @api.multi
 	# def sort_index_groups(self):
 	# 	#env = Environment(cr, uid, context)

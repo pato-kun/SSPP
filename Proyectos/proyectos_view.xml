@@ -239,7 +239,7 @@
         </record>
 
         <!-- esta es la opcion del menu principal para el modulo -->
-        <menuitem id="sspp_proyecto_menu" name="proyecto"
+        <menuitem id="sspp_proyecto_menu" name="Proyectos"
             />
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->

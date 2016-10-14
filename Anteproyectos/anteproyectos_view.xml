@@ -85,7 +85,7 @@
 
                         <group string="Profesor Asesor"> 
                             <field name ="profAssesor" 
-                                domain="[('topics','in',topics[0][2])]"/>
+                                domain="[('topics','in',topics[0][2]),('cantStudents', '>', 0)]"/>
                             <!-- ^ many2many domain filter ^ -->
                         </group>
                         </group>
@@ -96,12 +96,12 @@
                         </group> 
 
                         <notebook>
-                            <page string="Posibles Trabajos"> 
+                            <page string="Descripcion"> 
                             <!-- colspan/col -->
                                 <field name ="possibleTasks"/>
                             </page>
                             
-                            <page string="Trabajos a Realizar">
+                            <page string="Trabajos a Realizar/Productos">
                                 <field name ="actualTask" />
                             </page>
 

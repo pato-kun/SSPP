@@ -81,34 +81,36 @@ class anteproyecto(models.Model):
 	def action_aprove(self):
 		self.state = 'aprove'
 		tags = []
-		for item in self.topics:
-			tags.append(item.id)
-		id_project = self.env['sspp.proyecto'].create({
-			'name' : self.name,
-			'student' : self.student.id,
-			'carnet' : self.carnet,
-			'company' : self.company.id,
-			'companyContact' : self.companyContact.id,
-			'companyAssesor' : self.companyAssesor.id,
-			'profAssesor' : self.profAssesor.id,
-			'possibleTasks' : self.possibleTasks,
-			'actualTask' : self.actualTask,
-			'generalObjetive' : self.generalObjetive,
-			'specificObjective' : self.specificObjective,
-			'metodology' : self.metodology,
-			'tools' : self.tools,
-			'topics' : [(6, 0, tags)],
-			'state' : self.state,
-			'comments' : self.comments
-		})
-		self.env.cr.commit()
+		if self.profAssesor.cantStudents > 0:
+			for item in self.topics:
+				tags.append(item.id)
+			id_project = self.env['sspp.proyecto'].create({
+				'name' : self.name,
+				'student' : self.student.id,
+				'carnet' : self.carnet,
+				'company' : self.company.id,
+				'companyContact' : self.companyContact.id,
+				'companyAssesor' : self.companyAssesor.id,
+				'profAssesor' : self.profAssesor.id,
+				'possibleTasks' : self.possibleTasks,
+				'actualTask' : self.actualTask,
+				'generalObjetive' : self.generalObjetive,
+				'specificObjective' : self.specificObjective,
+				'metodology' : self.metodology,
+				'tools' : self.tools,
+				'topics' : [(6, 0, tags)],
+				'state' : self.state,
+				'comments' : self.comments
+			})
+			self.env.cr.commit()
+		else:
 
-		# return {
-		# 	'warning': {
-		# 		'title': " Aviso",
-		# 		'message': tags,
-		# 	},
-		# }
+			return {
+				'warning': {
+					'title': " Aviso",
+					'message': "El profesor asignado no tiene mas cupos disponibles.",
+				},
+			}
 
 	_defaults = {
 		'student': lambda obj, cr, uid, context: uid,
