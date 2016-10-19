@@ -131,9 +131,18 @@
                             </page>
                             -->
                             <page string="Documentos Adicionales">
-                                <field name ="cronogram"    widget="image"
-                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                                <group string="Documento Formal">
+                                    <field name ="extraFile" string="Agregar Documento"   
+                                        widget="many2many_binary"
+                                        attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                                </group>
+                                <group string="Imagen de Cronograma">
+                                    <field name ="cronogram" string="Cronograma"   widget="image"
+                                        attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                                </group>
                             </page>
+
+
                         </notebook>
                         <group string="Comentarios"> 
                         <field name="comments"

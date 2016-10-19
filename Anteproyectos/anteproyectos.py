@@ -52,7 +52,9 @@ class anteproyecto(models.Model):
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
 	comments = fields.Char('Comentarios', size=256 , help='Comentarios de Coordinación')
 	isActive = fields.Boolean()
-	cronogram = fields.Binary("Cronograma", help="Descargar la imagen del cronograma")
+	#extraFile = fields.Binary("Documento", help="Subir aqui la documentación complementaria")
+	extraFile= fields.Many2many("ir.attachment", string="Documento") 
+	cronogram = fields.Binary("Cronograma", help="Subir aqui la imagen del cronograma")
 
 	@api.onchange('student')
 	def _set_carnet(self):
