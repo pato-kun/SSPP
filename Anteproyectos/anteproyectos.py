@@ -36,25 +36,23 @@ class anteproyecto(models.Model):
 	_description = 'Formulario De Anteproyecto'
 
 	name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
-	student = fields.Many2one('res.users' ,  ondelete='set null', string="Estudiante", index=True ) #,default=lambda self: self.env.user )
+	student = fields.Many2one('res.users' ,  ondelete='set null', string="Estudiante", index=True )
 	carnet = fields.Integer()
 	company = fields.Many2one('res.partner', 'Empresa',requiered=True)
 	companyContact = fields.Many2one('res.partner', ondelete='set null', string="Contacto de la Empresa", index=True )
 	companyAssesor = fields.Many2one('res.partner', ondelete='set null', string="Asesor en la Empresa", index=True )
 	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) 
-		#, domain="[('asset_catg_id', '=',place)]"),
-		#, read=['Anteproyectos.user_group_professor'] )
 	possibleTasks = fields.Html('Posibles Trabajos a Realizar', requiered=True, help='Posibles trabajos a realizar')
-	#'fechainicio': fields.date('Fecha de inicio', requiered=True),
-	#'fechafinal': fields.date('Fecha de fin', requiered=True),
 	actualTask = fields.Html('Descripcion Del Trabajo A Realizar',  requiered=True, help='Trabajos a realizar durante el proyecto')
 	generalObjetive  = fields.Html('Objetivo General Del Trabajo',  requiered=True, help='Objetivo general del proyecto')
 	specificObjective = fields.Html('Objetivos Especificos',  requiered=True, help='Objetivos especificos para logra el objetivo')
-	metodology = fields.Html('Metodologia',  requiered=True, help='Describa la metodologia a utilizar')
-	tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
+	#metodology = fields.Html('Metodologia',  requiered=True, help='Describa la metodologia a utilizar')
+	#tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
 	topics = fields.Many2many('anteproyecto.topics', string='Areas de estudio',ondelete='cascade')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
 	comments = fields.Char('Comentarios', size=256 , help='Comentarios de Coordinación')
+	isActive = fields.Boolean()
+	cronogram = fields.Binary("Cronograma", help="Descargar la imagen del cronograma")
 
 	@api.onchange('student')
 	def _set_carnet(self):
@@ -96,13 +94,14 @@ class anteproyecto(models.Model):
 				'actualTask' : self.actualTask,
 				'generalObjetive' : self.generalObjetive,
 				'specificObjective' : self.specificObjective,
-				'metodology' : self.metodology,
-				'tools' : self.tools,
+				#'metodology' : self.metodology,
+				#'tools' : self.tools,
 				'topics' : [(6, 0, tags)],
 				'state' : self.state,
 				'comments' : self.comments
 			})
 			self.env.cr.commit()
+			self.profAssesor.cantStudents -= 1
 		else:
 
 			return {
@@ -115,6 +114,7 @@ class anteproyecto(models.Model):
 	_defaults = {
 		'student': lambda obj, cr, uid, context: uid,
 		'state': 'draft', 
+		'isActive': True ,
 	}
 	    
 

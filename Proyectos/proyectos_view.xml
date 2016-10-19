@@ -10,7 +10,7 @@
                 <tree string="Lista De proyecto">
                     <field name ="name" />
                     <field name ="student" />
-                    <field name ="state" />
+                    <field name ="status" />
                     <field name ="profAssesor" />
 
                 </tree>
@@ -25,35 +25,27 @@
             <field name="arch" type="xml">
                 <form string="proyecto" version="7.0">
                     <header>
-
-                        <!-- botones de control, no visibles a los estudiantes o profesores? -->
-                        <button name="action_draft" string="Regresar a borrador" type="object"   
+                        <button name="action_suspend" string="Suspender Proyecto" type="object"   
                             groups="Anteproyectos.user_group_professor,base.group_no_one" />
-                        <!--    attrs="{'invisible': [('state','!=','draft')]}"/> -->
-                        <button name="action_aprove" string="Aprobar anteproyecto" type="object" 
+                        <button name="action_resume" string="Reanudar Proyecto" type="object" 
                         groups="Anteproyectos.user_group_professor,base.group_no_one" class="oe_highlight" />
-                        <!--     attrs="{'invisible': [('state','=','aprove')]}"/> -->
-                        <button name="action_reject" string="Rechazar anteproyecto" type="object"  
-                            groups="Anteproyectos.user_group_professor,base.group_no_one" />
-                        <!--     attrs="{'invisible': [('state','=','reject')]}"/> -->
-                        
-                        <field name="state" widget="statusbar"/>
+                        <button name="action_apeal" string="Solicitar Apelacion"        type="object"  
+                            groups="Anteproyectos.user_group_student,base.group_no_one" />
+                        <field name="status" widget="statusbar"/>
+                        <field name="statusProgress" widget="statusbar"/>
                         
                     </header>
-                    <sheet>
-                    
+                    <sheet> 
                         <group  col="2" string="Datos generales"> 
                         <!-- colspan/col -->
                             <field name ="name" />
                        
-
                         <group string="Estudiante"> 
                             <field name ="student"  domain="[('isStudent','=',True)]" />
                             <field name ="carnet"   
                                 
                             />
-<!--                        domain="[('carnet','=',student.carnet)]"
-                            attrs="{'readonly' [('user.isStudent','=',True)]"   /> -->
+
                         </group>
 
                         <group string="Empresa"> 
@@ -100,12 +92,8 @@
                                 <field name ="specificObjective" />
                             </page>
 
-                            <page string="Metodologia">
-                                <field name ="metodology" />
-                            </page>
-
-                            <page string="Herramientas">
-                                <field name ="tools" />
+                            <page string="Documentos Adicionales">
+                                <field name ="cronogram" />
                             </page>
                         </notebook>
                         <group string="Comentarios"> 
@@ -154,15 +142,25 @@
                 <field name="student"/>
                 <field name="carnet" />
                 <field name="company" />
-                <filter name="non_approved" string="Proyectos sin aprobar"
-                    domain="[('state', '=', 'draft')]"/>
-                <filter name="approved" string="Proyectos aprobados"
-                    domain="[('state', '=', 'aprove')]"/>
+
+                <filter name="isActive" string="Proyectos activos"
+                    domain ="[('isActive', '=', True)]"/>
+
+                <separator/>
+
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('isActive', '=', False)]"/>
+
+                <filter name="non_approved" string="Proyectos suspendidos"
+                    domain="[('status', '=', 'suspended')]"/>
+                <filter name="approved" string="Proyectos en curso"
+                    domain="[('status', '=', 'onTrack')]"/>
+
                 <group string="Agrupar por">
                     <filter name="by_student" string="Estudiante"
                         context="{'group_by': 'student'}"/>
-                    <filter name="by_state" string="Estado"
-                        context="{'group_by': 'state'}"/>
+                    <filter name="by_status" string="Estado"
+                        context="{'group_by': 'status'}"/>
                     <filter name="by_professor" string="Profesor"
                         context="{'group_by': 'profAssesor'}"/>
                     <filter name="by_year" string="Año"
@@ -182,7 +180,7 @@
         <field name="name">sspp.proyecto.kanban</field>
         <field name="model">sspp.proyecto</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state">
+                <kanban default_group_by="status">
                     <templates>
                         <t t-name="kanban-box">
                             <div
@@ -217,7 +215,7 @@
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml"> <!--
                 <filter name ="sspp_anteproyecto_tree_student_filter" string="Lista De Anteproyectos filter" domain="[('user_id','=',uid)]"/> -->
-                <field name="state" position="after" domain="[('student','=',user.id)]">
+                <field name="status" position="after" domain="[('student','=',user.id)]">
                 </field>
             </field>
         </record>
@@ -227,13 +225,15 @@
 
         <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
         <record id="sspp_proyecto_action" model="ir.actions.act_window">
-            <field name="name">proyecto</field>
+            <field name="name">Proyectos</field>
             <field name="res_model">sspp.proyecto</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="proyecto_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
-                Click para agregar un nuevo anteproyecto.
+                No hay proyectos aprobados o en curso.
               </p>
             </field>
         </record>
@@ -243,12 +243,12 @@
             />
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_proyecto" parent="sspp_proyecto_menu" name="proyecto sidebar" 
+        <menuitem id="submenu_sspp_proyecto" parent="sspp_proyecto_menu" name="Proyectos" 
             />
 
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_proyecto_action" parent="submenu_sspp_proyecto" name="proyecto" action ="sspp_proyecto_action"
+        <menuitem id="submenu_sspp_proyecto_action" parent="submenu_sspp_proyecto" name="Proyecto" action ="sspp_proyecto_action"
             />
 
          <!--    RECORD RULES -->

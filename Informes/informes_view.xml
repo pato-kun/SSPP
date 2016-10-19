@@ -28,6 +28,19 @@
                 </tree>
             </field>
         </record>
+
+        <!--  esta especifica la vista de los estudiantes en tipo lista  -->
+        <record id="minutas_tree" model="ir.ui.view">
+            <field name="name">sspp.minutas.tree</field>
+            <field name="model">sspp.minutas</field>
+            <field name="arch" type="xml">
+                <tree string="Lista De Minutas de Reunión">
+                    <field name ="author" />
+                    <field name ="project_id" />
+                    <field name ="dateDone" />
+                </tree>
+            </field>
+        </record>
      
 
         <!--  esta especifica la vista en tipo Forma de los informes Profesor-Coordinador, es decir uno x uno -->
@@ -94,33 +107,25 @@
                         <!-- botones de control, no visibles a los estudiantes o profesores? -->
                         <button name="action_draft" string="Regresar a borrador" type="object"
                             groups="Anteproyectos.user_group_professor,base.group_no_one"   />
-                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight" 
+                        <button name="action_aprove" string="Aprobar minuta" type="object"  class="oe_highlight" 
                             groups="Anteproyectos.user_group_professor,base.group_no_one"/>
-                        <button name="action_reject" string="Rechazar informe" type="object"  
+                        <button name="action_reject" string="Rechazar minuta" type="object"  
                             groups="Anteproyectos.user_group_professor,base.group_no_one"/>                        
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet> 
-                        <group > <!--  
-                            domain="[('groups_id','in',Anteproyectos.user_group_student)]" />
-                            context="{'default_groups_ref': ['base.group_no_one']}"
-                            context="{'default_groups_ref': ['Anteproyectos.user_group_student']}"
-                            [('company_ids','child_of',[user.company_id.id])]
-                            domain="[('groups_id','in','base.group_no_one')]" -> index error
-                            domain="[('groups_id','in',[base.group_no_one])]" ->base doesnt exists
-                            <field name ="sortField" 
-                                attrs="{'invisible':[('state','in',['draft','reject','aprove'])]}"/>
-                            domain="[('category_id.name', '=', 'user_group_professor')]"       
-                            <field name ="student"  widget="selection"
-                                     domain="[('isStudent','=',True)]"  />
-                                     domain="[('isProfessor','=',True)]"
-                                 -->
-                            <field name ="profAssesor" 
-                                />
-                            <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
+                        <group > 
+                            <field name ="author" 
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}">
+                            </field>
+                            <field name ="project_id"  widget="selection" domain="['|',('student','=',uid),('profAssesor','=',uid)]" 
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
-                            <field name ="dateDone" 
+                            <field name ="otherMembers"  
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <field name ="meetingType"  
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                            <field name ="place"  
+                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>    
                             <field name ="dateDone" 
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
                             <field name ="pointers" 
@@ -239,7 +244,7 @@
             </field>
         </record>
 
-        <!--  Vista search de imformes 
+        <!--  Vista search de imformes P_C
         <filter name="by_student" string="Estudiante"
                         context="{'group_by': 'self.project_id.student'}"/>
                          -->
@@ -251,6 +256,50 @@
                 <field name="profAssesor"/>
                 <field name="project_id"/>
                 <field name="status" />
+                <filter name="isActive" string="Proyectos en curso"
+                    domain ="[('project_id.isActive', '=', True)]"/>
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('project_id.isActive', '=', False)]"/>
+
+                <separator/>
+                <filter name="non_approved" string="Informes sin aprobar"
+                domain="[('state', '=', 'draft')]"/>
+                <filter name="approved" string="Informes aprobados"
+                domain="[('state', '=', 'aprove')]"/>
+                <group string="Agrupar por">  
+                    
+                    <filter name="by_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+                    <filter name="by_professor" string="Profesor"
+                        context="{'group_by': 'profAssesor'}"/>
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="Group Students by Year" />
+                    <filter name="by_carnet" string="Carné"
+                        context="{'group_by': 'carnet'}"/>
+                </group>
+            </search>
+            </field>
+        </record>
+
+        <!--  Vista search de imformes E_P
+        <filter name="by_student" string="Estudiante"
+                        context="{'group_by': 'self.project_id.student'}"/>
+                         -->
+        <record model="ir.ui.view" id="informesestudiante_search_view">
+            <field name="name">sspp.informesestudiante.search</field>
+            <field name="model">sspp.informesestudiante</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <field name="profAssesor"/> 
+                <field name="project_id"/>
+                <field name="state" />
+                <filter name="isActive" string="Proyectos en curso"
+                    domain ="[('project_id.isActive', '=', True)]"/>
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('project_id.isActive', '=', False)]"/>
+
+                <separator/>
                 <filter name="non_approved" string="Informes sin aprobar"
                 domain="[('state', '=', 'draft')]"/>
                 <filter name="approved" string="Informes aprobados"
@@ -280,13 +329,21 @@
             <field name="model">sspp.minutas</field>
             <field name="arch" type="xml">
             <search string="Buscar">
-                <field name="profAssesor"/>
+                <field name="author"/>
                 <field name="project_id"/>
                 <field name="dateDone" />
+                <filter name="isActive" string="Proyectos en curso"
+                    domain ="[('project_id.isActive', '=', True)]"/>
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('project_id.isActive', '=', False)]"/>
+
+                <separator/>
+
                 <filter name="non_approved" string="Informes sin aprobar"
                     domain="[('state', '=', 'draft')]"/>
                 <filter name="approved" string="Informes aprobados"
                     domain="[('state', '=', 'aprove')]"/>
+
                 <group string="Agrupar por">  
                     
                     <filter name="by_state" string="Estado"
@@ -322,7 +379,20 @@
             <field name="inherit_id" ref="Informes.informes_minutas_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
-                <field name ="profAssesor" position="attributes" >
+                <field name ="author" position="attributes" >
+                   <attribute name="readonly">1</attribute> 
+                </field>    
+            </field>
+        </record>
+
+        <!--  Vista Form del formulario de minutas heredada para Profesores  -->
+        <record model="ir.ui.view"  id="sspp_informes_minutas_form_professor">
+            <field name="name">sspp.minutas.form.profesor</field>
+            <field name="model">sspp.minutas</field>
+            <field name="inherit_id" ref="Informes.informes_minutas_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_professor') ])]"/>
+            <field name="arch" type="xml">
+                <field name ="author" position="attributes" >
                    <attribute name="readonly">1</attribute> 
                 </field>    
             </field>
@@ -343,7 +413,7 @@
             </field>
         </record>
 
-        <!--  Aqui iban las vistas TREE heredadas por grupo -->
+        here
        
         
         <!--  menu de creacion y vista de informes Estudiante-Profesor -->
@@ -352,6 +422,8 @@
             <field name="res_model">sspp.informesestudiante</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="informesestudiante_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
                 Click para agregar un nuevo informe.
@@ -365,6 +437,8 @@
             <field name="res_model">sspp.informesprofesor</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="informesprofesor_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
                 Click para agregar un nuevo informe.
@@ -378,6 +452,8 @@
             <field name="res_model">sspp.minutas</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="minutas_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
             <field name="help" type="html">
               <p class="oe_view_nocontent_create">
                 Click para agregar una nueva entrada.
@@ -421,7 +497,8 @@
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
         <!--      The "global" field is a calculated field that is automatically
              this shoudl be when project id equals any of my projects -->
-            <field name="domain_force">[('project_id.profAssesor', '=', user.id)]</field>
+            <field name="domain_force">[
+                ('project_id.isActive', '=', True),('project_id.profAssesor', '=', user.id)]</field>
         </record>
 
         <!--     Regla de vista de informes P-C de grupo Estudiantes -->
@@ -433,7 +510,8 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_unlink" eval="False"/>
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
-            <field name="domain_force">[('project_id.student','=',user.id)]</field>
+            <field name="domain_force">[
+                ('project_id.isActive', '=', True),('project_id.student','=',user.id)]</field>
         </record>
 
         <!--    Regla de vista de informes E-P de grupo Estudiantes -->
@@ -445,7 +523,8 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_unlink" eval="False"/>
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
-            <field name="domain_force">[('project_id.student', '=', user.id)]</field>
+            <field name="domain_force">[
+                ('project_id.isActive', '=', True),('project_id.student', '=', user.id)]</field>
         </record>
 
         <!--     Regla de vista de informes E-P de grupo Profesores -->
@@ -457,7 +536,9 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_unlink" eval="False"/>
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
-            <field name="domain_force">[('project_id.profAssesor','=',user.id)]</field>
+            <field name="domain_force">
+                [('project_id.isActive', '=', True),('project_id.profAssesor','=',user.id)]
+                </field>
         </record>
 
         <!--    Regla de vista de minutas de grupo Estudiantes -->
@@ -469,7 +550,8 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_unlink" eval="False"/>
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
-            <field name="domain_force">[('project_id.student', '=', user.id)]</field>
+            <field name="domain_force">[
+                ('project_id.isActive', '=', True),('project_id.student', '=', user.id)]</field>
         </record>
 
         <!--     Regla de vista de minutas de grupo Profesores -->
@@ -481,7 +563,8 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_unlink" eval="False"/>
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
-            <field name="domain_force">[('project_id.profAssesor','=',user.id)]</field>
+            <field name="domain_force">[
+                ('project_id.isActive', '=', True),('project_id.profAssesor','=',user.id)]</field>
         </record>
 
     </data>

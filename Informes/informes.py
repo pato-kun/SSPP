@@ -43,23 +43,28 @@ class informesprofesor(models.Model):
 		#,domain="[('isStudent2','=',True)]"  )
 		#, domain=[(_get_students(self))]) #,default=lambda self: self.env.user )
 	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
-	project_id = fields.Many2one('sspp.anteproyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	dateFiled= fields.Date(string='Fecha')
-	#fechafinal: fields.date('Fecha de fin', requiered=True),
-	#tareasrealizadas: fields.char('Tareas realizadas', size=256 , requiered=True, help='Tareas realizadas en la semana'),
 	description= fields.Char('Descripcion', size=256 , requiered=True, help='Descripcion del avance')
 	status= fields.Selection([('belated','Atrasado'),('onTime','A tiempo'), ('ahead','Adelantado')],'Estado del proyecto', default= 'onTime')
 	comments= fields.Char('Comentarios', size=256 , requiered=True, help='Comentarios')
 	commentsCoord= fields.Char('Observaciones del Coordinador', size=256 , help='Observaciones del Coordinador')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
-	#sortField = fields.Boolean(compute='sort_index_groups')
 
 	@api.multi
 	def action_draft(self):
 		self.state = 'draft'
+
 	@api.one
 	def action_aprove(self):
 		self.state = 'aprove'
+		if self.status == 'belated':
+			self.project_id.statusProgress = 'belated'
+		elif self.status == 'ahead':
+			self.project_id.statusProgress = 'ahead'
+		elif self.status == 'onTime':
+			self.project_id.statusProgress = 'onTime'
+
 	@api.one
 	def action_reject(self):
 		self.write({
@@ -81,7 +86,7 @@ class informesestudiante(models.Model):
 
 	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
 	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
-	project_id = fields.Many2one('sspp.anteproyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	dateStart= fields.Date(string='Fecha inicio')
 	dateEnd= fields.Date(string='Fecha final')
 	tareasPlaneadas = fields.Char('Actividades planeadas para este periodo', size=512, requiered=True, help='Tareas planeadas para este periodo')
@@ -102,11 +107,8 @@ class informesestudiante(models.Model):
 		self.write({
 	    'state': 'reject',
 		})
-		#self.state = 'reject'
 
 	_defaults = {
-		#'profAssesor': lambda obj, cr, uid, context: uid,
-		#'student': lambda self, cr, uid, context:self._get_students(self),
 		'state': 'draft', 
 	}
 
@@ -117,8 +119,11 @@ class minutas(models.Model):
 	_description = 'Formulario De Minutas'
 
 	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
-	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
-	project_id = fields.Many2one('sspp.anteproyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	author = fields.Many2one('res.users', ondelete='set null', string="Encargado", index=True) #,domain=[('user.id')]) 
+	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	otherMembers = fields.Char('Asistentes', size=256 , requiered=True, help='Asistentes de la reunión')
+	meetingType = fields.Char('Tipo de Reunión', size=256 , requiered=True, help='Tipo de reunión, presencial, telefónica...')
+	place = fields.Char('Lugar de Reunión', size=256 , requiered=True, help='Locacion de la reunión')
 	dateDone= fields.Date(string='Fecha de reunión')
 	pointers = fields.Html('Puntos tratados y acuerdos',  requiered=True, help='Acuerdos y puntos tratados')
 	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
@@ -138,10 +143,48 @@ class minutas(models.Model):
 		#self.state = 'reject'
 
 	_defaults = {
-		#'profAssesor': lambda obj, cr, uid, context: uid,
+		'author': lambda obj, cr, uid, context: uid,
 		#'student': lambda self, cr, uid, context:self._get_students(self),
 		'state': 'draft', 
 	}
+
+
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+		tags = []
+		if self.profAssesor.cantStudents > 0:
+			for item in self.topics:
+				tags.append(item.id)
+			id_project = self.env['sspp.proyecto'].create({
+				'name' : self.name,
+				'student' : self.student.id,
+				'carnet' : self.carnet,
+				'company' : self.company.id,
+				'companyContact' : self.companyContact.id,
+				'companyAssesor' : self.companyAssesor.id,
+				'profAssesor' : self.profAssesor.id,
+				'possibleTasks' : self.possibleTasks,
+				'actualTask' : self.actualTask,
+				'generalObjetive' : self.generalObjetive,
+				'specificObjective' : self.specificObjective,
+				'metodology' : self.metodology,
+				'tools' : self.tools,
+				'topics' : [(6, 0, tags)],
+				'state' : self.state,
+				'comments' : self.comments
+			})
+			self.env.cr.commit()
+			self.profAssesor.cantStudents -= 1
+		else:
+
+			return {
+				'warning': {
+					'title': " Aviso",
+					'message': "El profesor asignado no tiene mas cupos disponibles.",
+				},
+			}
+
 	# @api.multi
 	# def sort_index_groups(self):
 	# 	#env = Environment(cr, uid, context)

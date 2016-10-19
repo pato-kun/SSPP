@@ -56,7 +56,8 @@
                     
                         <group  col="2" string="Datos generales"> 
                         <!-- colspan/col -->
-                            <field name ="name" />
+                            <field name ="name" 
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                        
 
                         <group string="Estudiante"> 
@@ -70,59 +71,73 @@
 
                         <group string="Empresa"> 
                             <field name ="company"
-                                   domain="[('is_company', '=', True)]" />
+                                   domain="[('is_company', '=', True)]" 
+                                   attrs="{'readonly':[('state','in',['aprove'])]}"/>
                         </group>
 
                         <group string="Contacto de la Empresa"> 
                             <field name ="companyContact"
-                                domain="[('parent_id', '=', company)]"/>
+                                domain="[('parent_id', '=', company)]"
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                         </group>
 
                         <group string="Asesor en la Empresa"> 
                             <field name ="companyAssesor"
-                                domain="[('parent_id', '=', company)]"/>
+                                domain="[('parent_id', '=', company)]"
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                         </group>
 
                         <group string="Profesor Asesor"> 
                             <field name ="profAssesor" 
-                                domain="[('topics','in',topics[0][2]),('cantStudents', '>', 0)]"/>
+                                domain="[('topics','in',topics[0][2]),('cantStudents', '>', 0)]"
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <!-- ^ many2many domain filter ^ -->
                         </group>
                         </group>
 
                         <!-- ultimo cambio added this group-->
                         <group string="Areas de estudio"> 
-                        <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"/>
+                        <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"
+                            attrs="{'readonly':[('state','in',['aprove'])]}"/>
                         </group> 
 
                         <notebook>
                             <page string="Descripcion"> 
                             <!-- colspan/col -->
-                                <field name ="possibleTasks"/>
+                                <field name ="possibleTasks"
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             </page>
                             
                             <page string="Trabajos a Realizar/Productos">
-                                <field name ="actualTask" />
+                                <field name ="actualTask" 
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             </page>
 
                             <page  string="Objetivos Generales">
-                                <field name ="generalObjetive" />
+                                <field name ="generalObjetive"
+                                attrs="{'readonly':[('state','in',['aprove'])]}" />
                             </page>
 
                             <page string="Objetivos Especificos">
-                                <field name ="specificObjective" />
+                                <field name ="specificObjective" 
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             </page>
-
+                            <!--
                             <page string="Metodologia">
                                 <field name ="metodology" />
                             </page>
-
                             <page string="Herramientas">
                                 <field name ="tools" />
                             </page>
+                            -->
+                            <page string="Documentos Adicionales">
+                                <field name ="cronogram"    widget="image"
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                            </page>
                         </notebook>
                         <group string="Comentarios"> 
-                        <field name="comments"/>
+                        <field name="comments"
+                            attrs="{'readonly':[('state','in',['aprove'])]}"/>
                         </group> 
                     </sheet>
                 </form>
@@ -163,14 +178,24 @@
             <field name="model">sspp.anteproyecto</field>
             <field name="arch" type="xml">
             <search string="Buscar">
+                <!-- 
                 <field name="name"/>
                 <field name="student"/>
                 <field name="carnet" />
                 <field name="company" />
+                  -->
+                <filter name="isActive" string="Proyectos en curso"
+                    domain ="[('isActive', '=', True)]"/>
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('isActive', '=', False)]"/>
+
+                <separator/>
+
                 <filter name="non_approved" string="Proyectos sin aprobar"
                     domain="[('state', '=', 'draft')]"/>
                 <filter name="approved" string="Proyectos aprobados"
                     domain="[('state', '=', 'aprove')]"/>
+                 
                 <group string="Agrupar por">
                     <filter name="by_student" string="Estudiante"
                         context="{'group_by': 'student'}"/>
@@ -268,19 +293,34 @@
               </p>
             </field>
         </record>
-        <!-- end test -->
-
+        <!-- end test 
+        <record id="open_view_employee_tree" model="ir.actions.act_window">
+            <field name="name">Employees Structure</field>
+            <field name="res_model">hr.employee</field>
+            <field name="view_type">tree</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_employee_tree"/>
+            <field name="domain">[('parent_id','=',False)]</field>
+            <field name="search_view_id" ref="view_employee_filter"/> here
+        </record>
+        -->
         <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
         <record id="sspp_anteproyecto_action" model="ir.actions.act_window">
             <field name="name">Anteproyectos</field>
             <field name="res_model">sspp.anteproyecto</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="anteproyecto_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
             <field name="help" type="html">
+            
               <p class="oe_view_nocontent_create">
                 Click para agregar un nuevo anteproyecto.
               </p>
             </field>
+            <!--
+            <field name="context">{'isActive': True}</field>
+        -->
         </record>
 
         <!-- esta es la opcion del menu principal para el modulo -->
@@ -312,7 +352,7 @@
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
         <!--      The "global" field is a calculated field that is automatically
              True is groups = False -->
-            <field name="domain_force">[('student', '=', user.id)]</field>
+            <field name="domain_force">[('isActive', '=', True),('student', '=', user.id)]</field>
             
         </record>
 
@@ -327,7 +367,7 @@
         <!--      If limited to a group :-->
             <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
         <!--      last change added this rule -->
-            <field name="domain_force">[('profAssesor','=',user.id)]</field>
+            <field name="domain_force">[('isActive', '=', True),('profAssesor','=',user.id)]</field>
         </record>
         <!--  test for domain controled views 
 

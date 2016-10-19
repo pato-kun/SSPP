@@ -41,11 +41,28 @@ class proyecto(models.Model):
 	# project_id = fields.Many2one('sspp.anteproyecto', 'Proyecto' ,ondelete='set null',requiered=True ) 
 	# dateFiled= fields.Date(string='Fecha')
 	# description= fields.Char('Descripcion', size=256 , requiered=True, help='Descripcion del avance')
-	#status= fields.Selection([('belated','Atrasado'),('onTime','A tiempo'), ('ahead','Adelantado')],'Estado del proyecto', default= 'onTime')
+	status= fields.Selection([('onTrack','En Curso'),('suspended','Suspendido')]
+		,'Estado del proyecto', default= 'onTrack')
 	# comments= fields.Char('Comentarios', size=256 , requiered=True, help='Comentarios')
 	# commentsCoord= fields.Char('Observaciones del Coordinador', size=256 , help='Observaciones del Coordinador')
-	# state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
+	statusProgress = fields.Selection([('belated','Atrasado'),('onTime','A tiempo'), 
+		('ahead','Adelantado')],'Estado del anteproyecto', default= 'onTime')
+	isActive = fields.Boolean()
 
-	
+	@api.one
+	def action_suspend(self):
+		self.status = 'suspended'
+
+	@api.one
+	def action_resume(self):
+		self.status = 'onTrack'
+
+	@api.one
+	def action_apeal(self):
+		self.status = 'onTrack'	
+
+	_defaults = {
+		'isActive': True ,
+	}
 
 	
