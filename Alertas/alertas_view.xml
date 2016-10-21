@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--  esta especifica la vista de los estudiantes en tipo lista -->
+        <record id="sspp_proyecto_tree" model="ir.ui.view">
+            <field name="name">sspp.proyecto.tree</field>
+            <field name="model">sspp.proyecto</field>
+            <field name="arch" type="xml">
+                <tree string="Lista De proyecto">
+                    <field name ="name" />
+                    <field name ="student" />
+                    <field name ="status" />
+                    <field name ="profAssesor" />
+
+                </tree>
+            </field>
+        </record>
+     
+
+        <!--  Vista Form del formulario de anteproyecto -->
+        <record id="sspp_proyecto_form" model="ir.ui.view">
+            <field name="name">sspp.proyecto.form</field>
+            <field name="model">sspp.proyecto</field>
+            <field name="arch" type="xml">
+                <form string="proyecto" version="7.0">
+                    <header>
+                        <button name="action_suspend" string="Suspender Proyecto" type="object"   
+                            groups="Anteproyectos.user_group_professor,base.group_no_one" />
+                        <button name="action_resume" string="Reanudar Proyecto" type="object" 
+                        groups="Anteproyectos.user_group_professor,base.group_no_one" class="oe_highlight" />
+                        <button name="action_apeal" string="Solicitar Apelacion"        type="object"  
+                            groups="Anteproyectos.user_group_student,base.group_no_one" />
+                        <field name="status" widget="statusbar"/>
+                        <field name="statusProgress" widget="statusbar"/>
+                        
+                    </header>
+                    <sheet> 
+                        <group  col="2" string="Datos generales"> 
+                        <!-- colspan/col -->
+                            <field name ="name" />
+                       
+                        <group string="Estudiante"> 
+                            <field name ="student"  domain="[('isStudent','=',True)]" />
+                            <field name ="carnet"   
+                                
+                            />
+
+                        </group>
+
+                        <group string="Empresa"> 
+                            <field name ="company"
+                                   domain="[('is_company', '=', True)]" />
+                        </group>
+
+                        <group string="Contacto de la Empresa"> 
+                            <field name ="companyContact"
+                                domain="[('parent_id', '=', company)]"/>
+                        </group>
+
+                        <group string="Asesor en la Empresa"> 
+                            <field name ="companyAssesor"
+                                domain="[('parent_id', '=', company)]"/>
+                        </group>
+
+                        <group string="Profesor Asesor"> 
+                            <field name ="profAssesor" domain="[('isProfessor','=',True)]"/>
+
+                        </group>
+                        </group>
+
+                        <!-- ultimo cambio added this group-->
+                        <group string="Areas de estudio"> 
+                        <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"/>
+                        </group> 
+
+                        <notebook>
+                            <page string="Posibles Trabajos"> 
+                            <!-- colspan/col -->
+                                <field name ="possibleTasks"/>
+                            </page>
+                            
+                            <page string="Trabajos a Realizar">
+                                <field name ="actualTask" />
+                            </page>
+
+                            <page  string="Objetivos Generales">
+                                <field name ="generalObjetive" />
+                            </page>
+
+                            <page string="Objetivos Especificos">
+                                <field name ="specificObjective" />
+                            </page>
+
+                            <page string="Documentos Adicionales">
+                                <field name ="cronogram" />
+                            </page>
+                        </notebook>
+                        <group string="Comentarios"> 
+                        <field name="comments"/>
+                        </group> 
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!--  Vista Form del formulario de anteproyecto heredada para estudiantes debe prevenir que 
+        el estudiante no edite el campo profesor asesor ni el estudiante del proyecto-->
+        <record model="ir.ui.view"  id="sspp_proyecto_form_student">
+            <field name="name">sspp.proyecto.form.student</field>
+            <field name="model">sspp.proyecto</field>
+            <field name="inherit_id" ref="Proyectos.sspp_proyecto_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml">
+                
+                <field name ="student" position="attributes"  >
+                    <attribute name="readonly">1</attribute>
+                </field>
+
+                <field name ="carnet" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                <field name="profAssesor" position="attributes" >
+                    <!-- domain="[('uid.groups_id', 'in', 'Anteproyectos.user_group_professor')]"> -->
+                    <attribute name="readonly">1</attribute>
+                </field>
+                <field name="comments" position="attributes" >
+                    <attribute name="readonly">1</attribute>
+                </field>
+            </field>
+        </record>
+
+        <!--  Vista search de anteproyectos  -->        
+
+        <record model="ir.ui.view" id="proyecto_search_view">
+            <field name="name">sspp.proyecto.search</field>
+            <field name="model">sspp.proyecto</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <field name="name"/>
+                <field name="student"/>
+                <field name="carnet" />
+                <field name="company" />
+
+                <filter name="isActive" string="Proyectos activos"
+                    domain ="[('isActive', '=', True)]"/>
+
+                <separator/>
+
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('isActive', '=', False)]"/>
+
+                <filter name="non_approved" string="Proyectos suspendidos"
+                    domain="[('status', '=', 'suspended')]"/>
+                <filter name="approved" string="Proyectos en curso"
+                    domain="[('status', '=', 'onTrack')]"/>
+
+                <group string="Agrupar por">
+                    <filter name="by_student" string="Estudiante"
+                        context="{'group_by': 'student'}"/>
+                    <filter name="by_status" string="Estado"
+                        context="{'group_by': 'status'}"/>
+                    <filter name="by_professor" string="Profesor"
+                        context="{'group_by': 'profAssesor'}"/>
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="Group Students by Year" />
+                    <filter name="by_carnet" string="Carné"
+                        context="{'group_by': 'carnet'}"/>
+                    <filter name="by_company" string="Empresa"
+                        context="{'group_by': 'company'}"/>
+                </group>
+            </search>
+            </field>
+        </record>
+
+        <!--  Vista kanban del formulario de anteproyecto -->
+        <record model="ir.ui.view" id="view_proyecto_kanban">
+        <field name="name">sspp.proyecto.kanban</field>
+        <field name="model">sspp.proyecto</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="status">
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div
+                            t-attf-class="oe_kanban_global_click_edit oe_semantic_html_override
+                            oe_kanban_card {{record.group_fancy==1 ?
+                            'oe_kanban_card_fancy' : ''}}">
+                                <div t-attf-class="oe_kanban_content">
+                                <!-- title -->
+                                    Proyecto:
+                                    <field name="name"/>
+                                        <br/>
+                                    Estudiante:
+                                    <field name="student"/>
+                                        <br/>
+                                    Profesor:
+                                    <field name="profAssesor"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+
+
+        <!--  Vista tree del formulario de anteproyecto heredada para estudiantes -->
+        <record model="ir.ui.view"  id="sspp_proyecto_tree_student_inherited">
+            <field name="name">sspp.proyecto.tree.student</field>
+            <field name="model">sspp.proyecto</field>
+            <field name="inherit_id" ref="Anteproyectos.sspp_anteproyecto_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml"> <!--
+                <filter name ="sspp_anteproyecto_tree_student_filter" string="Lista De Anteproyectos filter" domain="[('user_id','=',uid)]"/> -->
+                <field name="status" position="after" domain="[('student','=',user.id)]">
+                </field>
+            </field>
+        </record>
+        
+
+
+
+        <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
+        <record id="sspp_proyecto_action" model="ir.actions.act_window">
+            <field name="name">Proyectos</field>
+            <field name="res_model">sspp.proyecto</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="proyecto_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                No hay proyectos aprobados o en curso.
+              </p>
+            </field>
+        </record>
+
+        <!-- esta es la opcion del menu principal para el modulo -->
+        <menuitem id="sspp_proyecto_menu" name="Proyectos"
+            />
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_proyecto" parent="sspp_proyecto_menu" name="Proyectos" 
+            />
+
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_proyecto_action" parent="submenu_sspp_proyecto" name="Proyecto" action ="sspp_proyecto_action"
+            />
+
+         <!--    RECORD RULES -->
+        <record id="proyecto_student_rule" model="ir.rule">
+            <field name="name">Regla de autoria de proyecto grupo estudiantes</field>
+            <field name="model_id" ref="model_sspp_proyecto"/>
+         <!--     By default, all perm_ * are True -->
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        <!--      If limited to a group :-->
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
+        <!--      The "global" field is a calculated field that is automatically
+             True is groups = False -->
+            <field name="domain_force">[('student', '=', user.id)]</field>
+            
+        </record>
+
+        <!--     Regla de vista de anteproyectos de grupo Profesores -->
+        <record id="proyecto_professor_rule" model="ir.rule">
+            <field name="name">Regla de vista de proyecto de grupo Profesores</field>
+            <field name="model_id" ref="model_sspp_proyecto"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        <!--      If limited to a group :-->
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_professor'))]"/>
+        <!--      last change added this rule -->
+            <field name="domain_force">[('profAssesor','=',user.id)]</field>
+        </record>
+        <!--  test for domain controled views 
+
+        <record id="group_checkroll_manager" model="res.groups">
+            <field name="name">Checkroll_Manager</field>
+            <field name="implied_ids" eval="[(4, ref('group_checkroll_user'))]" />
+            <field name="category_id" ref="module_checkroll_category" />
+            <field name="users" eval="[(4, ref('base.user_root'))]" />
+        </record>
+
+         
+        
+          test for update menu privileges
+        <record id="Anteproyectos.sspp_anteproyecto_menu" model="ir.ui.menu">
+        Use the special many2many value syntax to add a child record, and the `ref()` method to resolve the group XML ID 
+            <field name="groups_id" eval="[(4,ref('Usuarios.user_group_student'))]"/>
+        </record>
+-->
+    </data>
+</openerp>

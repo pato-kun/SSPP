@@ -71,7 +71,27 @@ class anteproyecto(models.Model):
 		self.write({
 	    'state': 'reject',
 		})
-		#self.state = 'reject'
+		
+		# body = '''
+		# 	Dear ''' " %s," % (self.student.name) + '''
+		# 	<p></p>
+		# 	<p> Su proyecto ''' "%s" % self.name + '''  ha sido rechazdo
+		# 	 ''' "%s" % self.student.email +''' su correo lol.</p> 
+		# 	<p></p>
+		# 	<p>Esto esta entre P's nerd </p> 
+		# 	<p> </p>
+		# 	<p>No responda este correo </p>
+                            
+		# 	<p>Saludos, </p> 
+		# 	'''
+		# mail_details = {'subject': "Proyeccto rechazado",
+		# 	'body': body,
+		# 	'partner_ids': [(self.student.email)]
+		# 	}
+		# mail = self.env['mail.thread']
+  #       mail.message_post(type="notification", subtype="mt_comment", **mail_details)
+
+
 
 	#here
 	#@api.v8 
@@ -104,6 +124,35 @@ class anteproyecto(models.Model):
 			})
 			self.env.cr.commit()
 			self.profAssesor.cantStudents -= 1
+			
+			mail_mail = self.env['mail.mail']
+			body = '''
+			Dear ''' " %s," % (self.student.name) + '''
+			<p></p>
+			<p> Su proyecto ''' "%s" % self.name + '''  ha sido aprobado
+			 ''' "%s" % self.student.email +''' su correo lol.</p> 
+			<p></p>
+			<p>Esto esta entre P's </p> 
+			<p> </p>
+			<p>No responda este correo </p>
+                            
+			<p>Saludos, </p> 
+			'''
+			subject = "Proyecto aprobado"
+			mail_values = {
+			'email_from':self.student.email,
+			'email_to': self.student.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+			}
+			mail_id = mail_mail.create( mail_values)
+			mail_mail.send([mail_id])
+				#,auto_commit=True)
+				#,force_send=True)
+
+
 		else:
 
 			return {
@@ -112,6 +161,10 @@ class anteproyecto(models.Model):
 					'message': "El profesor asignado no tiene mas cupos disponibles.",
 				},
 			}
+		
+
+
+
 
 	_defaults = {
 		'student': lambda obj, cr, uid, context: uid,
@@ -119,6 +172,33 @@ class anteproyecto(models.Model):
 		'isActive': True ,
 	}
 	    
+# def sendMail(user,project):
+# 		mail_mail = self.env('mail.mail')
+# 		#this_context = context
+# 		body = '''
+# 			Dear ''' " %s," % (user.name) + '''
+# 			<p></p>
+# 			<p> Su proyecto ''' "%s" % project + '''  ha sido aprobado
+# 			 ''' "%s" % user.email +''' su correo lol.</p> 
+# 			<p></p>
+# 			<p>Esto esta entre P's </p> 
+# 			<p> </p>
+# 			<p>No responda este correo </p>
+                            
+# 			<p>Saludos, </p> 
+# 			'''
+# 		subject = "Proyecto aprobado"
+# 		print "Email to",user.name 
+# 		mail_values = {
+# 			'email_from':user.email,
+# 			'email_to': user.email,
+# 			'subject': subject,
+# 			'body_html': body,
+# 			'state': 'outgoing',
+# 			'type': 'email',
+# 			}
+# 		mail_id = mail_mail.create( mail_values, context=this_context)
+# 		mail_mail.send([mail_id],  auto_commit=True, context=this_context)
 
 class anteproyecto_tema(models.Model):
 	""" Area que conocimiento que abarca """
