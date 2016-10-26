@@ -52,25 +52,139 @@ class informesprofesor(models.Model):
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
 
 	@api.multi
+	def sendMailStudent(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.student.email,
+			'email_to': self.project_id.student.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailProfAssesor(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.profAssesor.email,
+			'email_to': self.project_id.profAssesor.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailAdmin(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		users = self.env['res.users'].search([('isAdmin','=',True)])
+		for admins in users:
+
+			mail_values  = {
+				'email_from':admins.email,
+				'email_to': admins.email,
+				'subject': subject,
+				'body_html': body,
+				'state': 'outgoing',
+				'type': 'email',
+			}
+			mail_id = mail_mail.create( mail_values)
+			mail_mail.send([mail_id])
+
+	@api.multi
 	def action_draft(self):
 		self.state = 'draft'
 
 	@api.one
 	def action_aprove(self):
 		self.state = 'aprove'
-		if self.status == 'belated':
-			self.project_id.statusProgress = 'belated'
-		elif self.status == 'ahead':
-			self.project_id.statusProgress = 'ahead'
-		elif self.status == 'onTime':
-			self.project_id.statusProgress = 'onTime'
+		body  = '''
+		Dear ''' " %s," % (self.project_id.profAssesor.name) + '''
+		<p></p>
+		<p> El informe de avance del proyecto ''' "%s" % self.project_id.name + ''', creado el  
+		''' "%s" % self.create_date + ''' a sido aprobado.</p> 
+		<p>
+		Comentarios del Coordinador:
+		''' "%s" % self.commentsCoord + '''
+		</p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Reporte de avance de" + " %s," % (self.project_id.name) + "aprobado."
+		self.sendMailProfAssesor(body,subject)
+		
 
 	@api.one
 	def action_reject(self):
 		self.write({
 	    'state': 'reject',
 		})
-		#self.state = 'reject'
+		body  = '''
+		Dear ''' " %s," % (self.project_id.profAssesor.name) + '''
+		<p></p>
+		<p> El informe de avance del proyecto ''' "%s" % self.project_id.name + ''', creado el  
+		''' "%s" % self.create_date + ''' a sido rechazado.</p> 
+		<p>
+		Comentarios del Coordinador:
+		''' "%s" % self.commentsCoord + '''
+		</p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Reporte de avance de" + " %s," % (self.project_id.name) + "rechazado."
+		self.sendMailProfAssesor(body,subject)
+
+	@api.model
+	def create(self, vals):
+		rec = super(informesprofesor, self).create(vals)
+		#When overriding default Create method, the self value becomes and empty
+		#registry while vals contains a dictionary with values to create the reg with.
+		#Assigning the creation to a var ensures the capability to use said reg values on other 
+		#methods
+		body  = '''
+		Dear ''' " %s," % (rec.project_id.student.name) + '''
+		<p></p>
+		<p> Su profesor asesor del proyecto''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
+		la fecha ''' "%s" % rec.create_date + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Reporte de avance del proyecto" + " %s," % (rec.project_id.name)
+
+		bodyAdmin  = '''
+		<p></p>
+		<p> El profesor ''' " %s," % (rec.project_id.profAssesor.name) + ''' asesor del proyecto''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
+		la fecha ''' "%s" % rec.create_date + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subjectAdmin = "Reporte de avance del proyecto" + " %s," % (rec.project_id.name)
+
+		rec.sendMailStudent(body,subject)
+		rec.sendMailAdmin(bodyAdmin,subjectAdmin)
+		#return ({'warning': {'title': _('Warning !'), 'message': _(str(vals))}})
+		rec.project_id.statusProgress = rec.status 
+		return rec
+
+	@api.multi
+	def write(self, vals):
+		super(informesprofesor, self).write(vals)
+		self.project_id.statusProgress = self.status 
+		return True
 
 	_defaults = {
 		'profAssesor': lambda obj, cr, uid, context: uid,
@@ -85,7 +199,7 @@ class informesestudiante(models.Model):
 	_description = 'Formulario De Informes Estudiantes-Profesor'
 
 	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
-	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
+	#profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
 	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	dateStart= fields.Date(string='Fecha inicio')
 	dateEnd= fields.Date(string='Fecha final')
@@ -95,21 +209,99 @@ class informesestudiante(models.Model):
 	tareasARealizar = fields.Char('Actividades por realizar el próximo periodo', size=512, requiered=True, help='Tareas para el próximo periodo')
 	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del informes', default= 'draft')
+	
+
+	@api.multi
+	def sendMailStudent(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.student.email,
+			'email_to': self.project_id.student.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailProfAssesor(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.profAssesor.email,
+			'email_to': self.project_id.profAssesor.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
 
 	@api.multi
 	def action_draft(self):
 		self.state = 'draft'
+
 	@api.one
 	def action_aprove(self):
 		self.state = 'aprove'
+		body  = '''
+		Dear ''' " %s," % (self.project_id.student.name) + '''
+		<p></p>
+		<p> Su informe semanal del proyecto ''' "%s" % self.project_id.name + ''', creado el  
+		''' "%s" % self.create_date + ''' a sido aprobado.</p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Reporte semanal de " + " %s," % (self.create_date) + "aprobado."
+		self.sendMailStudent(body,subject)
+
 	@api.one
 	def action_reject(self):
 		self.write({
 	    'state': 'reject',
 		})
+		body  = '''
+		Dear ''' " %s," % (self.project_id.student.name) + '''
+		<p></p>
+		<p> Su informe semanal del proyecto ''' "%s" % self.project_id.name + ''', creado el  
+		''' "%s" % self.create_date + ''' a sido rechazado.</p> 
+		<p>
+		Comentarios del profesor:
+		''' "%s" % self.comments + '''
+		</p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Reporte semanal de " + " %s," % (self.create_date) + "rechazado."
+		self.sendMailStudent(body,subject)
+
+	@api.model
+	def create(self, vals):
+		rec = super(informesestudiante, self).create(vals)
+		body  = '''
+		Dear ''' " %s," % (rec.project_id.profAssesor.name) + '''
+		<p></p>
+		<p> El estudiante ''' "%s" % rec.project_id.student.name + ''' ha enviado un reporte semanal 
+		del Proyecto  ''' "%s" % rec.project_id.name + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Reporte semanal del proyecto" + " %s," % (rec.project_id.name)
+		rec.sendMailProfAssesor(body,subject)
+		#return ({'warning': {'title': _('Warning !'), 'message': _(str(vals))}})     
+		return rec
 
 	_defaults = {
-		'state': 'draft', 
+	'state': 'draft', 
 	}
 
 
@@ -122,6 +314,8 @@ class minutas(models.Model):
 	author = fields.Many2one('res.users', ondelete='set null', string="Encargado", index=True) #,domain=[('user.id')]) 
 	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	otherMembers = fields.Char('Asistentes', size=256 , requiered=True, help='Asistentes de la reunión')
+	#otherMembers = fields.Many2many('res.partner', ondelete='set null',string="Asistentes de la reunión",help='Los interesados recibiran una copia del reporte')
+	#for future use, when the app is actually online
 	meetingType = fields.Char('Tipo de Reunión', size=256 , requiered=True, help='Tipo de reunión, presencial, telefónica...')
 	place = fields.Char('Lugar de Reunión', size=256 , requiered=True, help='Locacion de la reunión')
 	dateDone= fields.Date(string='Fecha de reunión')
@@ -129,12 +323,87 @@ class minutas(models.Model):
 	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado de la minuta', default= 'draft')
 
+
+	@api.multi
+	def sendMailStudent(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.student.email,
+			'email_to': self.project_id.student.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailProfAssesor(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.profAssesor.email,
+			'email_to': self.project_id.profAssesor.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailAdmin(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		users = self.env['res.users'].search([('isAdmin','=',True)])
+		for admins in users:
+
+			mail_values  = {
+				'email_from':admins.email,
+				'email_to': admins.email,
+				'subject': subject,
+				'body_html': body,
+				'state': 'outgoing',
+				'type': 'email',
+			}
+			mail_id = mail_mail.create( mail_values)
+			mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailTarget(self, body, subject,target):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':target.email,
+			'email_to': target.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+		#############here here##################
 	@api.multi
 	def action_draft(self):
 		self.state = 'draft'
+
 	@api.one
 	def action_aprove(self):
 		self.state = 'aprove'
+		bodyAdmin  = '''
+		<p></p>
+		<p> La minuta de reunion efectuada el  ''' "%s" % self.create_date + '''del proyecto''' "%s" % self.project_id.name + '''  ha sido aprobada.</p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subjectAdmin = "Minuta de reunion aprobada."
+		self.sendMailStudent(body,subject,self.author)
+
 	@api.one
 	def action_reject(self):
 		self.write({
@@ -142,135 +411,50 @@ class minutas(models.Model):
 		})
 		#self.state = 'reject'
 
+	@api.model
+	def create(self, vals):
+		rec = super(minutas, self).create(vals)
+		body  = '''
+		Dear ''' " %s," % (rec.project_id.student.name) + '''
+		<p></p>
+		<p> Minuta de reunion efectuada el ''' "%s," % rec.dateDone + ''' del proyecto ''' "%s," % rec.project_id.name + ''' creada por ''' "%s" % rec.author.name + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subject = "Minuta de reunión, fecha  " + " %s" % (rec.dateDone)
+		rec.sendMailStudent(body,subject)
+
+		bodyAdmin  = '''
+		<p> Minuta de reunion efectuada el ''' "%s," % rec.dateDone + ''' del proyecto ''' "%s," % rec.project_id.name + ''' creada por ''' "%s" % rec.author.name + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+		subjectAdmin = "Reporte de avance del proyecto" + " %s," % (rec.project_id.name)
+		
+		bodyProf  = '''
+		Dear ''' " %s," % (rec.project_id.profAssesor.name) + '''
+		<p></p>
+		<p> Minuta de reunion efectuada el ''' "%s," % rec.dateDone + ''' del proyecto ''' "%s," % rec.project_id.name + ''' creada por ''' "%s" % rec.author.name + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>No responda este correo </p>       
+		<p>Saludos, </p> 
+		'''
+
+		rec.sendMailTarget(bodyProf,subject,rec.profAssesor)
+		rec.sendMailAdmin(body,subject)
+
+		return rec
+
 	_defaults = {
 		'author': lambda obj, cr, uid, context: uid,
 		#'student': lambda self, cr, uid, context:self._get_students(self),
 		'state': 'draft', 
 	}
-
-
-	# @api.one
-	# def action_aprove(self):
-	# 	self.state = 'aprove'
-	# 	tags = []
-	# 	if self.profAssesor.cantStudents > 0:
-	# 		for item in self.topics:
-	# 			tags.append(item.id)
-	# 		id_project = self.env['sspp.proyecto'].create({
-	# 			'name' : self.name,
-	# 			'student' : self.student.id,
-	# 			'carnet' : self.carnet,
-	# 			'company' : self.company.id,
-	# 			'companyContact' : self.companyContact.id,
-	# 			'companyAssesor' : self.companyAssesor.id,
-	# 			'profAssesor' : self.profAssesor.id,
-	# 			'possibleTasks' : self.possibleTasks,
-	# 			'actualTask' : self.actualTask,
-	# 			'generalObjetive' : self.generalObjetive,
-	# 			'specificObjective' : self.specificObjective,
-	# 			'metodology' : self.metodology,
-	# 			'tools' : self.tools,
-	# 			'topics' : [(6, 0, tags)],
-	# 			'state' : self.state,
-	# 			'comments' : self.comments
-	# 		})
-	# 		self.env.cr.commit()
-	# 		self.profAssesor.cantStudents -= 1
-	# 	else:
-
-	# 		return {
-	# 			'warning': {
-	# 				'title': " Aviso",
-	# 				'message': "El profesor asignado no tiene mas cupos disponibles.",
-	# 			},
-	# 		}
-
-	# @api.multi
-	# def sort_index_groups(self):
-	# 	#env = Environment(cr, uid, context)
-	# 	recs = self.env['res.users']  
-	# 	#recs = recs.search([Dominio con Condiciones para la Busqueda de Registros])
-	# 	for user in recs:
-	# 		if user.has_group('Anteproyectos.user_group_student'):
-	# 			user.isStudent = True
-	# 			_logger.warning('WARNING: entro! %s', user.name)
-	# 		elif user.has_group('Anteproyectos.user_group_professor'):
-	# 			user.isProfessor = True
-	# 		else:
-	# 			user.isStudent = False
-	# 			_logger.warning('WARNING: no entro! %s', user.name)
-	# 			user.isProfessor = False
-
-	# @api.multi
-	# def sort_index_groups(self, cr, uid, ids, context=None):
-	# 	user_ids = self.search(cr, uid, [], context=context)
-	# 	for user in self.browse(cr, uid, user_ids, context=context):
-	# 		if user.has_group(cr, uid,'Anteproyectos.user_group_student'):
-	#  			user.isStudent = True
-	#  		elif user.has_group(cr, uid,'Anteproyectos.user_group_professor'):
-	#  			user.isProfessor = True
-	#  		else:
-	#  			user.isStudent = False
-	#  			user.isProfessor = False
-
-
-
-
-	# @api.multi
-	# def sort_index_groups(self):
-	# 	all_users =self.pool.get('res.users')
-		
-	# 	for id2 in all_users.browse(cr, uid, uid, context=context):
-	# 		user1=id2
-	# 		if user1.has_group(cr, user1.id,'Anteproyectos.user_group_student'):
-	# 			user1.isStudent = True
-	# 		elif user1.has_group(cr, user1.id,'Anteproyectos.user_group_professor'):
-	# 			user1.isProfessor = True
-	# 		else:
-	# 			user1.isStudent = False
-	# 			user1.isProfessor = False
-
-		
-		# group = self.env['res.groups'].search([('category_id.name', '=', 'user_group_student')])
-		# group2 = self.env['res.groups'].search([('category_id.name', '=', 'user_group_professor')])
-
-		# for recipient in group.users:
-		# 	for use in all_users:
-		# 		if recipient.users.uid == all_users.groups_id.uid:
-		# 			user.isStudent  = True
-		
-		# for recipient2 in group2.users:
-		# 	recipient2.isProfessor = True	
-
-		# def has_group2(self,cr,uid,group_ext_id):
-  #        if '.' in group_ext_id:
-  #             users_group1 = [x.id for x in self.pool['ir.model.data'].get_object(cr, uid, 'bms',  'Anteproyectos.user_group_student').users]
-  #             users_group2 = [x.id for x in self.pool['ir.model.data'].get_object(cr, uid, 'bms',  'Anteproyectos.user_group_professor').users]
-
-  #             if uid in users_group1:
-  #                 return super(Users,self).has_group2(cr,uid,'Anteproyectos.user_group_student')
-  #             elif uid in users_group2:
-  #                 return super(Users,self).has_group2(cr,uid,'Anteproyectos.user_group_professor')
-  #             else:
-  #                 return super(Users,self).has_group2(cr,uid,'base.group_user')
-
-  #        else:
-  #            return super(Users,self).has_group(cr,uid,group_ext_id)
-		
-		
-		    
-	    
-
-	
-	#@api.onchange(student)
-	#def dynamic_student_domain(self):
-    #  return {'domain': {'student': [('student.groups_id','in',['Anteproyectos.user_group_student'])]}}
-
-		#try this: get_students; returns domain 
-		#<field name="subject_id" domain="list_new" />
-	#def _get_domain(self, cr, uid, ids, field_name, arg, context=None):
-	#    record_id = ids[0] 
-	#    # do some computations....
-	#    return {record_id: YOUR DOMAIN} 
-
-	#'list_new': fields.function(_get_domain, type='char', size=255, method=True, string="Domain"),

@@ -43,6 +43,7 @@ class usuarios_users(models.Model): #osv.osv
 
 	isProfessor = fields.Boolean()
 	isStudent = fields.Boolean()
+	isAdmin = fields.Boolean()
 	
 
 	#probe if user belongs to a group
@@ -51,7 +52,8 @@ class usuarios_users(models.Model): #osv.osv
 
 	_defaults = {
 	'isStudent': True,
-	'isProfessor': False, 
+	'isProfessor': False,
+	'isAdmin' : False
 	}
 
 	@api.onchange('isStudent')
@@ -68,10 +70,37 @@ class usuarios_users(models.Model): #osv.osv
 		if self.isProfessor:
 			self.isStudent = False
 			self.carnet = 0
+		# else:
+		# 	self.isProfessor =False
+		# 	self.isStudent = True
+
+	@api.model
+	def create(self, vals):
+		rec = super(usuarios_users, self).create(vals)
+		#user = self.env['res.users'].search([('isProfessor', '=', True)])
+		rec.insertToGroup()
+		return rec
+
+	@api.one
+	def insertToGroup(self):
+		res_groups = self.env['res.groups']
+		groupStudents = res_groups.search([('name', '=', 'Grupo Estudiantes')])
+		groupProfessors = res_groups.search([('name', '=', 'Grupo Profesores')])
+		groupCoord = res_groups.search([('name', '=', 'Technical Features')])
+
+		if self.isProfessor:
+			groupProfessors.write({ 'users': [(4, self.id, None)]})
+		elif self.isStudent:
+			groupStudents.write({ 'users': [(4, self.id, None)]})
+		elif self.isAdmin:
+			groupCoord.write({ 'users': [(4, self.id, None)]})
 		else:
-			self.isProfessor =False
-			self.isStudent = True
-      
+			return {
+					'warning': {
+						'title': _('Aviso'),
+						'message': _('Seleccione un rol para el usuario.')
+					}
+			}
 
 #class res_users_student(osv.osv):
 #    _inherit = 'res.users.user'

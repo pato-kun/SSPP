@@ -71,30 +71,13 @@ class anteproyecto(models.Model):
 		self.write({
 	    'state': 'reject',
 		})
-		
-		# body = '''
-		# 	Dear ''' " %s," % (self.student.name) + '''
-		# 	<p></p>
-		# 	<p> Su proyecto ''' "%s" % self.name + '''  ha sido rechazdo
-		# 	 ''' "%s" % self.student.email +''' su correo lol.</p> 
-		# 	<p></p>
-		# 	<p>Esto esta entre P's nerd </p> 
-		# 	<p> </p>
-		# 	<p>No responda este correo </p>
-                            
-		# 	<p>Saludos, </p> 
-		# 	'''
-		# mail_details = {'subject': "Proyeccto rechazado",
-		# 	'body': body,
-		# 	'partner_ids': [(self.student.email)]
-		# 	}
-		# mail = self.env['mail.thread']
-  #       mail.message_post(type="notification", subtype="mt_comment", **mail_details)
 
+	# @api.model
+	# def create(self, vals):
+	# 	vals['carnet'] = student.carnet
+	# 	rec = super(minutas, self).create(vals)
+	# 	#rec.write()
 
-
-	#here
-	#@api.v8 
 	#@api.multi
 	#@api.depends('anteproyecto.topics')
 	@api.one
@@ -147,8 +130,34 @@ class anteproyecto(models.Model):
 			'state': 'outgoing',
 			'type': 'email',
 			}
+			
+			body2 = '''
+				Dear ''' " %s," % (self.profAssesor.name) + '''
+				<p></p>
+				<p> Usted ha sido asignado como profesor asesor
+				en el Proyecto  ''' "%s" % self.name + ''' a cargo del estudiante
+				 '''  "%s" % self.student.name +''', correo '''  "%s" % self.student.email +''' .</p> 
+				<p></p>
+				<p>Esto esta entre P's </p> 
+				<p> </p>
+				<p>No responda este correo </p>
+		                        
+				<p>Saludos, </p> 
+				'''
+			subject2 = "Proyecto asignado"
+			mail_values2 = {
+				'email_from':self.profAssesor.email,
+				'email_to': self.profAssesor.email,
+				'subject': subject2,
+				'body_html': body2,
+				'state': 'outgoing',
+				'type': 'email',
+			}
+
 			mail_id = mail_mail.create( mail_values)
 			mail_mail.send([mail_id])
+			mail_id2 = mail_mail.create( mail_values2)
+			mail_mail.send([mail_id2])
 				#,auto_commit=True)
 				#,force_send=True)
 
@@ -157,17 +166,18 @@ class anteproyecto(models.Model):
 
 			return {
 				'warning': {
-					'title': " Aviso",
-					'message': "El profesor asignado no tiene mas cupos disponibles.",
-				},
+					'title': _('Aviso'),
+					'message': _('El profesor asignado no tiene mas cupos disponibles.')
+				}
 			}
-		
+
 
 
 
 
 	_defaults = {
 		'student': lambda obj, cr, uid, context: uid,
+		#'carnet' : lambda obj, cr, uid, context: uid.carnet ,
 		'state': 'draft', 
 		'isActive': True ,
 	}
@@ -206,10 +216,3 @@ class anteproyecto_tema(models.Model):
 	_description = "Area de estudio o tema."
 	name = fields.Char('Nombre', required=True, translate=True)
     
-    # User can write on a few of his own fields (but not his groups for example)
-    #SELF_WRITEABLE_FIELDS = ['name']
-    # User can read a few of his own fields
-    #SELF_READABLE_FIELDS = ['profAssesor'] 
-
-    
-

@@ -63,9 +63,13 @@
                         <group string="Estudiante"> 
                             <field name ="student"  domain="[('isStudent','=',True)]" />
                             <field name ="carnet"   
-                                
+                                domain="[('carnet','=',student.carnet)]"
+                            
                             />
 <!--                        domain="[('carnet','=',student.carnet)]"
+                            attrs="{'readonly' [('user.isStudent','=',True)]"   
+
+                            domain="[('carnet','=',student.carnet)]"
                             attrs="{'readonly' [('user.isStudent','=',True)]"   /> -->
                         </group>
 
@@ -163,13 +167,14 @@
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
                 
-                <field name ="student" position="attributes"  >
-                    <attribute name="readonly">1</attribute>
+                <field name ="student" domain="[('student','=',uid)]"  
+                    position="attributes"  > <attribute name="readonly">1</attribute>
+                </field>
+                <!-- position="attributes"  <attribute name="readonly">1</attribute> -->
+                <field name ="carnet" position="attributes">
+                   
                 </field>
 
-                <field name ="carnet" position="attributes">
-                    <attribute name="readonly">1</attribute>
-                </field>
                 <field name="profAssesor" position="attributes" >
                     <!-- domain="[('uid.groups_id', 'in', 'Anteproyectos.user_group_professor')]"> -->
                     <attribute name="readonly">1</attribute>

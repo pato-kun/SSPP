@@ -46,18 +46,19 @@
                 <group col="4" string="Tipo de usuario">
                     <field name="isStudent" string="Usuario Estudiante:"/>
                     <field name="isProfessor" string="Usuario Profesor:"/>
+                    <field name="isAdmin" string="Usuario Coodinador:"/>
                 </group>
 
                 <group>
                 
                     <field name="topics"  widget="many2many_tags" string="Areas de conocimineto"
-                        attrs="{'readonly':[('isProfessor', '!=', True)]}"
+                        attrs="{'readonly':[('isStudent', '=', True)]}"
                         placeholder="Ej: Logisitca, Base de datos.."/>
                 </group>
 
                 <group>
                     <field name="cantStudents"  string="Cantidad de estudiantes que puede asesorar"
-                        attrs="{'readonly':[('isProfessor', '!=', True)]}"/>
+                        attrs="{'readonly':[('isStudent', '=', True)]}"/>
                 </group>
 
                 <group>

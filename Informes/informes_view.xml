@@ -25,6 +25,7 @@
                     <field name ="dateStart" />
                     <field name ="dateEnd" />
                     <field name ="state" />
+                    <field name ="create_date"  string="Creado el"/>
                 </tree>
             </field>
         </record>
@@ -122,6 +123,10 @@
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
                             <field name ="otherMembers"  
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                <!-- widget="many2many_tags"
+                                options="{'no_create_edit': True}" 
+                                domain="['|',('student','=',uid),('profAssesor','=',uid)]" 
+                                for future use, curretnly only users connectec to local networks can login anyway-->
                             <field name ="meetingType"  
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
                             <field name ="place"  
@@ -215,12 +220,14 @@
             <field name="inherit_id" ref="Informes.informes_semanal_P_C_form"/>
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml">
-                <field name ="profAssesor" position="attributes" 
+               <!-- <field name ="profAssesor" position="attributes" 
+               <attribute name="readonly">1</attribute>
                     >
-                    <!-- eval="[(4, ref('Anteproyectos.user_group_student'))]"
+                    </field>
+                     eval="[(4, ref('Anteproyectos.user_group_student'))]"
                     domain="[('student','=',uid)]"  -->
-                    <attribute name="readonly">1</attribute>
-                </field>
+                    
+                
                 <field name ="project_id" position="attributes"
                     >
                     <attribute name="readonly">1</attribute>
@@ -247,13 +254,15 @@
         <!--  Vista search de imformes P_C
         <filter name="by_student" string="Estudiante"
                         context="{'group_by': 'self.project_id.student'}"/>
+
+                        <field name="profAssesor"/>
                          -->
         <record model="ir.ui.view" id="informesprofesor_search_view">
             <field name="name">sspp.informesprofesor.search</field>
             <field name="model">sspp.informesprofesor</field>
             <field name="arch" type="xml">
             <search string="Buscar">
-                <field name="profAssesor"/>
+                
                 <field name="project_id"/>
                 <field name="status" />
                 <filter name="isActive" string="Proyectos en curso"
@@ -271,7 +280,7 @@
                     <filter name="by_state" string="Estado"
                         context="{'group_by': 'state'}"/>
                     <filter name="by_professor" string="Profesor"
-                        context="{'group_by': 'profAssesor'}"/>
+                        context="{'group_by': 'project_id.profAssesor'}"/>
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
                             help="Group Students by Year" />
@@ -291,7 +300,7 @@
             <field name="model">sspp.informesestudiante</field>
             <field name="arch" type="xml">
             <search string="Buscar">
-                <field name="profAssesor"/> 
+
                 <field name="project_id"/>
                 <field name="state" />
                 <filter name="isActive" string="Proyectos en curso"
@@ -308,8 +317,7 @@
                     
                     <filter name="by_state" string="Estado"
                         context="{'group_by': 'state'}"/>
-                    <filter name="by_professor" string="Profesor"
-                        context="{'group_by': 'profAssesor'}"/>
+
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
                             help="Group Students by Year" />
