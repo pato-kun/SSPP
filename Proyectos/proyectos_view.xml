@@ -10,7 +10,7 @@
                 <tree string="Lista De proyecto">
                     <field name ="name" />
                     <field name ="student" />
-                    <field name ="status" />
+                    <field name ="statusProgress" />
                     <field name ="profAssesor" />
 
                 </tree>
@@ -31,7 +31,7 @@
                         groups="Anteproyectos.user_group_professor,base.group_no_one" class="oe_highlight" />
                         <button name="action_apeal" string="Solicitar Apelacion"        type="object"  
                             groups="Anteproyectos.user_group_student,base.group_no_one" />
-                        <field name="status" widget="statusbar"/>
+                       <!--  <field name="status" widget="statusbar"/> -->
                         <field name="statusProgress" widget="statusbar"/>
                         
                     </header>
@@ -152,15 +152,20 @@
                     domain ="[('isActive', '=', False)]"/>
 
                 <filter name="non_approved" string="Proyectos suspendidos"
-                    domain="[('status', '=', 'suspended')]"/>
-                <filter name="approved" string="Proyectos en curso"
-                    domain="[('status', '=', 'onTrack')]"/>
+                    domain="[('statusProgress', '=', 'suspended')]"/>
+                <filter name="approved" string="Proyectos a tiempo"
+                    domain="[('statusProgress', '=', 'onTrack')]"/>
+                <filter name="non_approved" string="Proyectos atrasados"
+                    domain="[('statusProgress', '=', 'belated')]"/>
+                <filter name="approved" string="Proyectos adelantados"
+                    domain="[('statusProgress', '=', 'ahead')]"/>
+
 
                 <group string="Agrupar por">
                     <filter name="by_student" string="Estudiante"
                         context="{'group_by': 'student'}"/>
                     <filter name="by_status" string="Estado"
-                        context="{'group_by': 'status'}"/>
+                        context="{'group_by': 'statusProgress'}"/>
                     <filter name="by_professor" string="Profesor"
                         context="{'group_by': 'profAssesor'}"/>
                     <filter name="by_year" string="Año"
@@ -170,6 +175,10 @@
                         context="{'group_by': 'carnet'}"/>
                     <filter name="by_company" string="Empresa"
                         context="{'group_by': 'company'}"/>
+                    <!--
+                    <filter name="by_tags" string="Areas"
+                        context="{'group_by': 'topics'}"/>
+                    -->
                 </group>
             </search>
             </field>
@@ -180,7 +189,7 @@
         <field name="name">sspp.proyecto.kanban</field>
         <field name="model">sspp.proyecto</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="status">
+                <kanban default_group_by="statusProgress">
                     <templates>
                         <t t-name="kanban-box">
                             <div
@@ -215,7 +224,7 @@
             <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
             <field name="arch" type="xml"> <!--
                 <filter name ="sspp_anteproyecto_tree_student_filter" string="Lista De Anteproyectos filter" domain="[('user_id','=',uid)]"/> -->
-                <field name="status" position="after" domain="[('student','=',user.id)]">
+                <field name="statusProgress" position="after" domain="[('student','=',user.id)]">
                 </field>
             </field>
         </record>

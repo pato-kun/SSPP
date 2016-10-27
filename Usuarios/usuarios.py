@@ -86,14 +86,14 @@ class usuarios_users(models.Model): #osv.osv
 		res_groups = self.env['res.groups']
 		groupStudents = res_groups.search([('name', '=', 'Grupo Estudiantes')])
 		groupProfessors = res_groups.search([('name', '=', 'Grupo Profesores')])
-		groupCoord = res_groups.search([('name', '=', 'Technical Features')])
+		groupCoord = res_groups.search([('name', '=', 'Access Rights')])
 
-		if self.isProfessor:
-			groupProfessors.write({ 'users': [(4, self.id, None)]})
+		if self.isAdmin:
+			groupCoord.write({ 'users': [(4, self.id, None)]})
 		elif self.isStudent:
 			groupStudents.write({ 'users': [(4, self.id, None)]})
-		elif self.isAdmin:
-			groupCoord.write({ 'users': [(4, self.id, None)]})
+		elif self.isProfessor:
+			groupProfessors.write({ 'users': [(4, self.id, None)]})
 		else:
 			return {
 					'warning': {

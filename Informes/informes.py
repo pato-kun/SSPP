@@ -46,7 +46,7 @@ class informesprofesor(models.Model):
 	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	dateFiled= fields.Date(string='Fecha')
 	description= fields.Char('Descripcion', size=256 , requiered=True, help='Descripcion del avance')
-	status= fields.Selection([('belated','Atrasado'),('onTime','A tiempo'), ('ahead','Adelantado')],'Estado del proyecto', default= 'onTime')
+	status= fields.Selection([('belated','Atrasado'),('onTime','A tiempo'), ('ahead','Adelantado'),('suspended','Suspender')],'Estado del proyecto', default= 'onTime')
 	comments= fields.Char('Comentarios', size=256 , requiered=True, help='Comentarios')
 	commentsCoord= fields.Char('Observaciones del Coordinador', size=256 , help='Observaciones del Coordinador')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
@@ -116,7 +116,7 @@ class informesprofesor(models.Model):
 		''' "%s" % self.commentsCoord + '''
 		</p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte de avance de" + " %s," % (self.project_id.name) + "aprobado."
 		self.sendMailProfAssesor(body,subject)
@@ -137,7 +137,7 @@ class informesprofesor(models.Model):
 		''' "%s" % self.commentsCoord + '''
 		</p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte de avance de" + " %s," % (self.project_id.name) + "rechazado."
 		self.sendMailProfAssesor(body,subject)
@@ -149,18 +149,37 @@ class informesprofesor(models.Model):
 		#registry while vals contains a dictionary with values to create the reg with.
 		#Assigning the creation to a var ensures the capability to use said reg values on other 
 		#methods
-		body  = '''
-		Dear ''' " %s," % (rec.project_id.student.name) + '''
-		<p></p>
-		<p> Su profesor asesor del proyecto''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
-		la fecha ''' "%s" % rec.create_date + '''.</p> 
-		<p></p>
-		<p>Esta pendiente su aprobacion. </p> 
-		<p></p>
-		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
-		'''
-		subject = "Reporte de avance del proyecto" + " %s," % (rec.project_id.name)
+		if rec.status == 'suspended':
+			body  = '''
+			Dear ''' " %s," % (rec.project_id.student.name) + '''
+			<p></p>
+			<p> Su profesor asesor del proyecto ''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
+			la fecha ''' "%s" % rec.create_date + '''.</p> 
+			<p></p>
+			<p>Se ha decidido suspender el proyecto por las siguientes rasones:	</p> ''' "%s" % rec.comments + '''
+			<p></p>
+			<p>Si desea apelar esta desicion ingrese al sistema y solicite apelacion desde el apartado de proyectos de proyectos. </p> 
+			<p></p>
+			<p>No responda este correo </p>       
+			<p>Saludos, Coordindacion del curso de Practica </p> 
+			'''
+			subject = "Proyecto suspendido" + " %s" % (rec.project_id.name)
+			rec.sendMailStudent(body,subject)
+
+		else:
+			body  = '''
+			Dear ''' " %s," % (rec.project_id.student.name) + '''
+			<p></p>
+			<p> Su profesor asesor del proyecto ''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
+			la fecha ''' "%s" % rec.create_date + '''.</p> 
+			<p></p>
+			<p>Comentarios:	</p> ''' "%s" % rec.comments + '''
+			<p></p>
+			<p>No responda este correo </p>       
+			<p>Saludos, Coordindacion del curso de Practica </p> 
+			'''
+			subject = "Reporte de avance del proyecto" + " %s" % (rec.project_id.name)
+			rec.sendMailStudent(body,subject)
 
 		bodyAdmin  = '''
 		<p></p>
@@ -170,13 +189,13 @@ class informesprofesor(models.Model):
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
-		subjectAdmin = "Reporte de avance del proyecto" + " %s," % (rec.project_id.name)
+		subjectAdmin = "Reporte de avance del proyecto" + " %s" % (rec.project_id.name)
 
-		rec.sendMailStudent(body,subject)
-		rec.sendMailAdmin(bodyAdmin,subjectAdmin)
-		#return ({'warning': {'title': _('Warning !'), 'message': _(str(vals))}})
+		
+		rec.sendMailAdmin(bodyAdmin,subjectAdmin)	
+		
 		rec.project_id.statusProgress = rec.status 
 		return rec
 
@@ -256,7 +275,7 @@ class informesestudiante(models.Model):
 		''' "%s" % self.create_date + ''' a sido aprobado.</p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte semanal de " + " %s," % (self.create_date) + "aprobado."
 		self.sendMailStudent(body,subject)
@@ -276,7 +295,7 @@ class informesestudiante(models.Model):
 		''' "%s" % self.comments + '''
 		</p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte semanal de " + " %s," % (self.create_date) + "rechazado."
 		self.sendMailStudent(body,subject)
@@ -293,7 +312,7 @@ class informesestudiante(models.Model):
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte semanal del proyecto" + " %s," % (rec.project_id.name)
 		rec.sendMailProfAssesor(body,subject)
@@ -399,7 +418,7 @@ class minutas(models.Model):
 		<p> La minuta de reunion efectuada el  ''' "%s" % self.create_date + '''del proyecto''' "%s" % self.project_id.name + '''  ha sido aprobada.</p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subjectAdmin = "Minuta de reunion aprobada."
 		self.sendMailStudent(body,subject,self.author)
@@ -422,7 +441,7 @@ class minutas(models.Model):
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Minuta de reunión, fecha  " + " %s" % (rec.dateDone)
 		rec.sendMailStudent(body,subject)
@@ -433,9 +452,9 @@ class minutas(models.Model):
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
-		subjectAdmin = "Reporte de avance del proyecto" + " %s," % (rec.project_id.name)
+		subjectAdmin = "Minuta de reunión, fecha" + " %s" % (rec.project_id.name)
 		
 		bodyProf  = '''
 		Dear ''' " %s," % (rec.project_id.profAssesor.name) + '''
@@ -445,7 +464,7 @@ class minutas(models.Model):
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
 		<p>No responda este correo </p>       
-		<p>Saludos, </p> 
+		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 
 		rec.sendMailTarget(bodyProf,subject,rec.profAssesor)

@@ -377,6 +377,10 @@
                 <field name ="project_id" position="attributes" widget="selection" domain="[('student','=',uid)]" >
                    <!-- <attribute name="readonly">1</attribute> -->
                 </field>    
+                <field name ="comments" position="attributes" >
+                   <attribute name="readonly">1</attribute> 
+                   
+                </field>  
             </field>
         </record>
 
@@ -389,6 +393,11 @@
             <field name="arch" type="xml">
                 <field name ="author" position="attributes" >
                    <attribute name="readonly">1</attribute> 
+                   
+                </field>  
+                <field name ="comments" position="attributes" >
+                   <attribute name="readonly">1</attribute> 
+                   
                 </field>    
             </field>
         </record>

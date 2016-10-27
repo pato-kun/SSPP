@@ -112,7 +112,7 @@ class anteproyecto(models.Model):
 			body = '''
 			Dear ''' " %s," % (self.student.name) + '''
 			<p></p>
-			<p> Su proyecto ''' "%s" % self.name + '''  ha sido aprobado
+			<p> Su proyecto ''' "%s" % self.name + ''' ha sido aprobado
 			 ''' "%s" % self.student.email +''' su correo lol.</p> 
 			<p></p>
 			<p>Esto esta entre P's </p> 
@@ -172,7 +172,37 @@ class anteproyecto(models.Model):
 			}
 
 
+	@api.multi
+	def sendMailAdmin(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		users = self.env['res.users'].search([('isAdmin','=',True)])
+		for admins in users:
 
+			mail_values  = {
+				'email_from':admins.email,
+				'email_to': admins.email,
+				'subject': subject,
+				'body_html': body,
+				'state': 'outgoing',
+				'type': 'email',
+			}
+			mail_id = mail_mail.create( mail_values)
+			mail_mail.send([mail_id])
+
+	@api.model
+	def create(self, vals):
+		rec = super(anteproyecto, self).create(vals)
+		body  = '''
+		<p> El estudiante ''' "%s" % rec.student.name + ''' ha enviado la propuesta de anteproyecto ''' "%s" % rec.name + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		'''
+		subject = "Propuesta de anteproyecto" + " %s," % (rec.name) + ''' por ''' "%s" % rec.student.name
+		rec.sendMailAdmin(body,subject)
+		#return ({'warning': {'title': _('Warning !'), 'message': _(str(vals))}})     
+		return rec
 
 
 	_defaults = {
