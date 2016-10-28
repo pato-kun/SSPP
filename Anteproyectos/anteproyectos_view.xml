@@ -103,6 +103,8 @@
                         <group string="Areas de estudio"> 
                         <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"
                             attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                        <field name="otherTopics"  
+                            attrs="{'readonly':[('state','in',['aprove'])]}"/>
                         </group> 
 
                         <notebook>

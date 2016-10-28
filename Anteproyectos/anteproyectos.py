@@ -49,6 +49,7 @@ class anteproyecto(models.Model):
 	#metodology = fields.Html('Metodologia',  requiered=True, help='Describa la metodologia a utilizar')
 	#tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
 	topics = fields.Many2many('anteproyecto.topics', string='Areas de estudio',ondelete='cascade')
+	otherTopics = fields.Char('Otros', size=256 , requiered=True, help='Areas de estudio')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
 	comments = fields.Char('Comentarios', size=256 , help='Comentarios de Coordinación')
 	isActive = fields.Boolean()
@@ -102,6 +103,7 @@ class anteproyecto(models.Model):
 				#'metodology' : self.metodology,
 				#'tools' : self.tools,
 				'topics' : [(6, 0, tags)],
+				'otherTopics' : self.otherTopics,
 				'state' : self.state,
 				'comments' : self.comments
 			})

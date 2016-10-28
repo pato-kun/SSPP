@@ -72,6 +72,7 @@
                         <!-- ultimo cambio added this group-->
                         <group string="Areas de estudio"> 
                         <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"/>
+                        <field name="topics" />
                         </group> 
 
                         <notebook>

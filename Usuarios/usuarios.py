@@ -47,14 +47,14 @@ class usuarios_users(models.Model): #osv.osv
 	
 
 	#probe if user belongs to a group
-	def _get_flag(self):
-		self.isStudent = self.pool.get('res.users').has_group(cr, uid, 'Anteproyectos.user_group_student') 
+	# def _get_flag(self):
+	# 	self.isStudent = self.pool.get('res.users').has_group(cr, uid, 'Anteproyectos.user_group_student') 
 
-	_defaults = {
-	'isStudent': True,
-	'isProfessor': False,
-	'isAdmin' : False
-	}
+	# _defaults = {
+	# 'isStudent': True,
+	# 'isProfessor': False,
+	# 'isAdmin' : False
+	# }
 
 	@api.onchange('isStudent')
 	def dynamic_student_domain(self):
@@ -101,6 +101,63 @@ class usuarios_users(models.Model): #osv.osv
 						'message': _('Seleccione un rol para el usuario.')
 					}
 			}
+
+	@api.multi
+	def write(self,vals):
+		super(usuarios_users, self).write(vals)
+		res_groups = self.env['res.groups']
+		groupStudents = res_groups.search([('name', '=', 'Grupo Estudiantes')])
+		groupProfessors = res_groups.search([('name', '=', 'Grupo Profesores')])
+		groupCoord = res_groups.search([('name', '=', 'Access Rights')])
+		if self.isAdmin:
+			groupCoord.write({ 'users': [(4, self.id, None)]})
+			if self.has_group('Anteproyectos.user_group_student') :
+				groupStudents.write({ 'users': [(3, self.id, None)]})
+			
+		elif self.isStudent:
+			groupStudents.write({ 'users': [(4, self.id, None)]})
+			if self.has_group('Anteproyectos.user_group_professor') :
+				groupProfessors.write({ 'users': [(3, self.id, None)]})
+			elif self.has_group('base.group_erp_manager') :
+				groupCoord.write({ 'users': [(3, self.id, None)]})
+
+		elif self.isProfessor:
+			groupProfessors.write({ 'users': [(4, self.id, None)]})
+			if self.has_group('Anteproyectos.user_group_student') :
+				groupStudents.write({ 'users': [(3, self.id, None)]})
+
+		# 		if self.isAdmin:
+		# 	groupCoord.write({ 'users': [(4, self.id, None)]})
+		# 	if self.has_group('Anteproyectos.user_group_student') :
+		# 		amITHere = groupStudents.search(['users.uid','=',self.id])
+		# 		amITHere.unlink()	
+			
+		# elif self.isStudent:
+		# 	groupStudents.write({ 'users': [(4, self.id, None)]})
+		# 	if groupProfessors.search(['users.uid','=',self.id]):
+		# 		amITHere = groupProfessors.search(['users.uid','=',self.id])
+		# 		amITHere.unlink()
+		# 	elif groupCoord.search(['users','=',self.id]) :
+		# 		amITHere = groupCoord.search(['users.uid','=',self.id])
+		# 		amITHere.unlink()
+
+		# elif self.isProfessor:
+		# 	groupProfessors.write({ 'users': [(4, self.id, None)]})
+		# 	if groupStudents.search(['users.uid','=',self.id]) :
+		# 		amITHere = groupStudents.search(['users.uid','=',self.id])
+		# 		amITHere.unlink()
+			
+			
+		else:
+			return {
+					'warning': {
+						'title': _('Aviso'),
+						'message': _('Seleccione un rol para el usuario.')
+					}
+			}
+		return True
+
+
 
 #class res_users_student(osv.osv):
 #    _inherit = 'res.users.user'
