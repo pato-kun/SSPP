@@ -27,7 +27,7 @@
 from openerp.tools.translate import _
 from openerp import api, models, fields, tools
 import logging
-import time
+import datetime
 from openerp.modules.module import get_module_resource
 
 
@@ -208,6 +208,7 @@ class informesprofesor(models.Model):
 	_defaults = {
 		'profAssesor': lambda obj, cr, uid, context: uid,
 		#'student': lambda self, cr, uid, context:self._get_students(self),
+		#'dateFiled' : datetime.datetime.today().strftime('%m-%d-%Y'),
 		'state': 'draft', 
 	}
 

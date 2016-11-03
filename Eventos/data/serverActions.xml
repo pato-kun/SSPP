@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="ir_actions_server_send_email_when_closed_nconf" model="ir.actions.server">
+            <field name="name">Auto-email when request is closed, not confirmed</field>
+            <field name="model_id" ref="model_generic_request"/>
+            <field name="state">email</field>
+            <field name="type">ir.actions.server</field>
+            <field name="condition">True</field>
+            <field name="email">object.requestor.email</field>
+            <field name="subject">Your request object.name has been closed (not confirmed)</field>
+            <field name="message"><![CDATA[
+THIS IS AN AUTOMATED EMAIL. DO NOT REPLY.
+
+Hello,
+
+We are here to inform you that the request [[object.name]] you submitted on [[object.request_date]] with the following data:
+
+        | Request - Details
+        |=========================
+        | Number: [[object.id]]
+        |=========================
+        | Responsible Person: [[object.responsible_name.name]]
+        | Request description: [[object.request_description]]
+        | Stating reasons: [[object.stating_reasons]]
+        |=========================
+        | Notes: [[object.notes]]
+
+
+Has not been confirmed and is closed.
+
+If you have any question, do not hesitate to contact your supervisor.
+
+Thank you!]]>
+
+            </field>            
+        </record>
+    </data>
+</openerp>

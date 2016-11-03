@@ -19,24 +19,28 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-#   Coded by: pat01822@gmail.com
+#	Coded by: pat01822@gmail.com
 #
 ##############################################################################
 
 {
-    'name': 'Modulo de Usuarios',
+    'name': 'Modulo de eventos',
     'version': '1',
-    'category': 'usuarios',
-    'description': """Modulo de usuarios del sistema SSPP.""",
+    'category': 'eventos',
+    'description': """Modulo de eventos del sistema SSPP.""",
     'author': 'JCAS',
     'maintainer': 'JCAS',
     'website': 'http://www.facebook.com/patotec',
     'licenses' : 'AGPL-3',
-    'depends': ['Anteproyectos','base','mail','email_template'],
+    'depends': ['base','Anteproyectos','mail','email_template'],
     'init_xml' : [],
     'demo_xml' : ['demo.xml'],
     'data': [
-                    'usuarios_view.xml',
+                    'eventos_view.xml',
+
+                    'data/actions.xml',
+                  
+
                     ],
     'installable': True,
     'auto_install': True,

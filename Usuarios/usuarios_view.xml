@@ -74,6 +74,51 @@
         </record>
 
        
+         <!--  Vista search de anteproyectos  -->        
+
+        <record model="ir.ui.view" id="usuarios_search_view">
+            <field name="name">res.users.search</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <field name="isStudent"/>
+                <field name="isProfessor"/>
+                <field name="isAdmin" />
+
+                <filter name="areStudent" string="Estudiantes"
+                    domain ="[('isStudent', '=', True)]"/>
+
+                <filter name="areProfessor" string="Profesores"
+                    domain ="[('isProfessor', '=', True)]"/>
+
+                <separator/>
+
+                <filter name="areAdmin" string="Coordinador"
+                    domain="[('isAdmin', '=', 'True')]"/>
+
+                 <separator/>
+
+                <filter name="areActive" string="Semestre Actual"
+                    domain="[('active', '=', 'True')]"/>
+            </search>
+            </field>
+        </record>
+
+        <record id="sspp_users_action" model="ir.actions.act_window">
+            <field name="name">Usuarios</field>
+            <field name="res_model">res.users</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="search_view_id" ref="usuarios_search_view"/>
+            <field name="context">{"search_default_areActive":1}</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                No hay usuarios con ese criterio de buesqueda.
+              </p>
+            </field>
+        </record>
+
         <!-- Creates the user groups 
         <attribute name="string">Areas de conocimiento</attribute>
         <attribute name="string">No. de carné</attribute>
@@ -92,10 +137,13 @@
         <!-- TESSSSST 
         <menuitem action="action_res_users2" id="menu_action_res_users" 
             parent="base.menu_definitions" groups="base.group_no_one"/>
-		-->
+		 <menuitem action="sspp_users_action" id="menu_user_config" 
+            parent="base.menu_definitions" groups="base.group_no_one"/>
+        
+-->
+       
         <menuitem action="user_group_action" id="menu_group_config" 
             parent="base.menu_definitions" groups="base.group_no_one"/>
-
         <!-- TESSSSST 
 
         <menuitem action="professor_category_action" id="menu_professor_category_act"    parent="base.menu_definitions" groups="base.group_no_one"/>
