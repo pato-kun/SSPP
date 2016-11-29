@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!--  esta especifica la vista de los informes Profesor-Coordinador en tipo lista (tree)  -->
+        <record id="calificacion_tree" model="ir.ui.view">
+            <field name="name">sspp.calificacion.tree</field>
+            <field name="model">sspp.calificacion</field>
+            <field name="arch" type="xml">
+                <tree string="Lista De Calificaciones">
+                    <field name ="student" />
+                    <!-- <field name ="project_id" /> -->
+                    <field name ="carnet" />
+
+                    <field name ="score" />
+                </tree>
+            </field>
+        </record>
+     
+
+        <!--  esta especifica la vista en tipo Forma de los informes Profesor-Coordinador, es decir uno x uno -->
+        <record model="ir.ui.view" id="calificacion_form" >
+            <field name="name">sspp.calificacion.form</field>
+            <field name="model">sspp.calificacion</field>
+            <field name="arch" type="xml">
+                <form string="Calificaciones" version="7.0">
+                    <header>
+                        <!-- botones de control, no visibles a los estudiantes o profesores? 
+                        <button name="action_draft" string="Regresar a borrador" type="object"
+                            groups="base.group_no_one"   />
+                        <button name="action_aprove" string="Aprobar informe" type="object"  class="oe_highlight" 
+                            groups="base.group_no_one"/>
+                        <button name="action_reject" string="Rechazar informe" type="object"  
+                            groups="base.group_no_one"/>                        
+                        <field name="state" widget="statusbar"/>
+                        -->
+                    </header>
+                    
+                    <sheet> 
+                        <group >  
+                            <field name ="student" string="Estudiante"/>
+                    <!--
+                    <field name ="project_id" />
+                    -->
+                    <field name ="carnet" string="Carné"/>
+
+                    <field name ="firstReportProf" string="Nota Primer Reporte - Profesor"/>
+                    <field name ="secondReportProf" string="Nota Segundo Reporte - Profesor"/>
+                    <field name ="finalReportProf" string="Nota Reporte Final - Profesor"/>
+
+                    <field name ="firstReportComp" string="Nota Primer Reporte - Empresa"/>
+                    <field name ="secondReportComp" string="Nota Segundo Reporte - Empresa"/>
+                    <field name ="finalReportComp" string="Nota Reporte Final - Empresa"/>
+
+                    <field name ="finalPresentation" string="Nota Presentacion Final"/>
+
+                    <field name ="score" string="Nota Total"/>
+                        </group>
+                    </sheet> 
+                </form>
+            </field>
+        </record>
+
+        <!--  esta especifica la vista de los informes Profesor-Coordinador en tipo lista (tree)
+        <record id="valores_calificacion_tree" model="ir.ui.view">
+            <field name="name">sspp.valorescalificacion.tree</field>
+            <field name="model">sspp.valorescalificacion</field>
+            <field name="arch" type="xml">
+                <tree string="Valores De Calificaciones">
+                    <field name ="student" />
+                    
+                    <field name ="carnet" />
+
+                    <field name ="score" />
+                </tree>
+            </field>
+        </record>
+     
+  -->
+        <!--  esta especifica la vista en tipo Forma de los informes Profesor-Coordinador, es decir uno x uno -->
+        <record model="ir.ui.view" id="valores_calificacion_form" >
+            <field name="name">sspp.valorescalificacion.form</field>
+            <field name="model">sspp.valorescalificacion</field>
+            <field name="arch" type="xml">
+                <form string="Valores de Calificacion" version="7.0">
+                    <header>
+  
+                    </header>
+                    
+                    <sheet> 
+                        <group string="Para modificar Valores use porcentaje Total Ej: 15">  
+                   <field name ="firstReportProfValue" string="Nota Primer Reporte - Profesor"/>
+                    <field name ="secondReportProfValue" string="Nota Segundo Reporte - Profesor"/>
+                    <field name ="finalReportProfValue" string="Nota Reporte Final - Profesor"/>
+
+                    <field name ="firstReportCompValue" string="Nota Primer Reporte - Empresa"/>
+                    <field name ="secondReportCompValue" string="Nota Segundo Reporte - Empresa"/>
+                    <field name ="finalReportCompValue" string="Nota Reporte Final - Empresa"/>
+
+                    <field name ="finalPresentation" string="Nota Presentacion Final"/>
+                        </group>
+                    </sheet> 
+                </form>
+            </field>
+        </record>
+
+
+
+
+        <record model="ir.ui.view" id="calificacion_search_view">
+            <field name="name">sspp.calificacion.search</field>
+            <field name="model">sspp.calificacion</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <!--
+                <field name="project_id"/>
+                
+                <filter name="isActive" string="Proyectos en curso"
+                    domain ="[('project_id.isActive', '=', True)]"/>
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('project_id.isActive', '=', False)]"/>
+                -->
+                <separator/>
+                <group string="Agrupar por">  
+                    <!--
+                    <filter name="by_professor" string="Profesor"
+                        context="{'group_by': 'project_id.profAssesor'}"/>
+                    -->
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="Group Students by Year" />
+                    <filter name="by_carnet" string="Carné"
+                        context="{'group_by': 'carnet'}"/>
+                </group>
+            </search>
+            </field>
+        </record>
+
+        <!--  Vista search de imformes E_P
+        <filter name="by_student" string="Estudiante"
+                        context="{'group_by': 'self.project_id.student'}"/>
+                         -->
+        
+        <!--  Vista Form del formulario de informes Estudiante-Profesor heredada para Estudiantes  -->
+        <record model="ir.ui.view"  id="sspp_calificacion_form_student">
+            <field name="name">sspp.calificacion.form.estudiante</field>
+            <field name="model">sspp.calificacion</field>
+            <field name="inherit_id" ref="Calificacion.calificacion_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml">
+                <!--
+                <field name ="project_id" position="attributes" widget="selection" domain="[('student','=',uid)]" >
+                    <attribute name="readonly">1</attribute> 
+                </field>
+                -->
+                <field name ="carnet"  position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                <field name ="firstReportProfValue" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                    <field name ="secondReportProfValue" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                    <field name ="finalReportProfValue" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+
+                    <field name ="firstReportCompValue" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                    <field name ="secondReportCompValue" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                    <field name ="finalReportCompValue" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
+                <field name ="score"  position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>    
+               
+
+            </field>
+        </record>
+
+       
+        
+        <!--  menu de creacion y vista de informes Estudiante-Profesor -->
+        <record id="calificacion_action" model="ir.actions.act_window">
+            <field name="name">Calificaciones</field>
+            <field name="res_model">sspp.calificacion</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="calificacion_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar un nuevo reporte de calificacion.
+              </p>
+            </field>
+        </record>
+
+        <!--  menu de creacion y vista de informes Estudiante-Profesor -->
+        <record id="valores_calificacion_action" model="ir.actions.act_window">
+            <field name="name">Valores de Calificaciones</field>
+            <field name="res_model">sspp.valorescalificacion</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> 
+            <!-- tree 
+            <field name="search_view_id" ref="calificacion_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
+            -->
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar un nuevo set de valores de calificacion.
+              </p>
+            </field>
+        </record>
+
+
+        <!-- esta es la opcion del menu principal para el modulo -->
+        <menuitem id="sspp_calificacion_menu" name="Calificaciones"
+            />
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_calificacion" parent="sspp_calificacion_menu" name="Notas de Estudiantes" 
+            />
+
+
+        <!-- esta es la opcion del menu izquierdo para el modulo 
+        <menuitem id="submenu_sspp_valores_calificacion" parent="sspp_calificacion_menu" name="Valores de calificacion" 
+            groups="Anteproyectos.user_group_professor,base.group_no_one"
+            />
+-->
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_calificacion_action" parent="submenu_sspp_calificacion" name="Calificaciones" action ="calificacion_action"
+            />
+
+        <!-- esta es la opcion del menu izquierdo para el modulo 
+        <menuitem id="submenu_sspp_valores_calificacion_action" parent="submenu_sspp_valores_calificacion" name="Asignar valores de calificacion" action ="valores_calificacion_action"
+            />
+-->
+
+         <!--    RECORD RULES -->
+        <!--     Regla de vista de informes P-C de grupo Estudiantes -->
+        <record id="calificacion_student_rule" model="ir.rule">
+            <field name="name">Regla de vista de calificaciones de grupo Estudiantes</field>
+            <field name="model_id" ref="model_sspp_calificacion"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="groups" eval="[(4, ref('Anteproyectos.user_group_student'))]"/>
+            <field name="domain_force">[
+                ('student','=',user.id)]</field>
+        </record>
+
+
+    </data>
+</openerp>

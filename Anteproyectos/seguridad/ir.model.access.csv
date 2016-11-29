@@ -1,5 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_anteproyecto_estudiantes,sspp.anteproyecto.estudiante,model_sspp_anteproyecto,Anteproyectos.user_group_student,1,1,1,0
-access_tags_estudiantes,anteproyecto.topics.estudiante,model_anteproyecto_topics,Anteproyectos.user_group_student,1,1,1,0
+access_tags_estudiantes,anteproyecto.topics.estudiante,model_anteproyecto_topics,Anteproyectos.user_group_student,1,1,0,0
 access_anteproyecto_profesores,sspp.anteproyecto.profesor,model_sspp_anteproyecto,Anteproyectos.user_group_professor,1,1,1,1
 access_tags_profesores,anteproyecto.topics.profesor,model_anteproyecto_topics,Anteproyectos.user_group_professor,1,1,1,1

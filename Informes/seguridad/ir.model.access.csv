@@ -2,7 +2,12 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_informes_p_c_estudiantes,sspp.informesprofesor.estudiante,model_sspp_informesprofesor,Anteproyectos.user_group_student,1,0,0,0
 access_informes_p_c_profesores,sspp.informesprofesor.profesor,model_sspp_informesprofesor,Anteproyectos.user_group_professor,1,1,1,1
+
 access_informes_e_p_estudiantes,sspp.informesestudiante.estudiante,model_sspp_informesestudiante,Anteproyectos.user_group_student,1,1,1,0
 access_informes_e_p_profesores,sspp.informesestudiante.profesor,model_sspp_informesestudiante,Anteproyectos.user_group_professor,1,1,1,1
+
 access_minutas_estudiantes,sspp.minutas.estudiante,model_sspp_minutas,Anteproyectos.user_group_student,1,1,1,0
 access_minutas_profesores,sspp.minutas.profesor,model_sspp_minutas,Anteproyectos.user_group_professor,1,1,1,0
+
+access_avances_estudiantes,sspp.avances.estudiante,model_sspp_avances,Anteproyectos.user_group_student,1,1,1,0
+access_avances_profesores,sspp.avances.profesor,model_sspp_avances,Anteproyectos.user_group_professor,1,1,1,0

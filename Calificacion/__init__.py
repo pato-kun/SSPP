@@ -23,25 +23,6 @@
 #
 ##############################################################################
 
-{
-    'name': 'Modulo de anteproyectos',
-    'version': '1',
-    'category': 'anteproyectos',
-    'description': """Modulo de anteproyectos del sistema SSPP.""",
-    'author': 'JCAS',
-    'maintainer': 'JCAS',
-    'website': 'http://www.facebook.com/patotec',
-    'licenses' : 'AGPL-3',
-    'depends': ['base','mail','email_template'],
-    'init_xml' : [],
-    'demo_xml' : ['demo.xml'],
-    'data': [
-                    'anteproyectos_view.xml',
-                    ],
-    'installable': True,
-    'auto_install': True,
-    'active': False,
-    'application': True,
 
- }
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+
+import calificacion

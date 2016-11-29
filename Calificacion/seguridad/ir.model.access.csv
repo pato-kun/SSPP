@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_score_estudiantes,sspp.calificacion.estudiante,model_sspp_calificacion,Anteproyectos.user_group_student,1,0,0,0
+access_score_profesores,sspp.calificacion.profesor,model_sspp_calificacion,Anteproyectos.user_group_professor,1,1,1,1

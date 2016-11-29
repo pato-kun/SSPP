@@ -49,12 +49,15 @@ class anteproyecto(models.Model):
 	#metodology = fields.Html('Metodologia',  requiered=True, help='Describa la metodologia a utilizar')
 	#tools = fields.Html('Tecnicas o Herramientas A Utilizar', size=256 , requiered=True, help='Herramientas a usar para lograr los objetivos')
 	topics = fields.Many2many('anteproyecto.topics', string='Areas de estudio',ondelete='cascade')
+	otherTopics = fields.Text('Otros temas', size=256 , help='Areas de estudio no incluidas')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
-	comments = fields.Char('Comentarios', size=256 , help='Comentarios de Coordinación')
+	comments = fields.Text('Comentarios', size=256 , help='Comentarios de Coordinación')
 	isActive = fields.Boolean()
 	#extraFile = fields.Binary("Documento", help="Subir aqui la documentación complementaria")
 	extraFile= fields.Many2many("ir.attachment", string="Documento") 
 	cronogram = fields.Binary("Cronograma", help="Subir aqui la imagen del cronograma")
+	#approvedBy = fields.Many2one('res.users', 'Aprobado por', ondelete='set null', requiered=False)
+
 
 	@api.onchange('student')
 	def _set_carnet(self):
@@ -63,20 +66,34 @@ class anteproyecto(models.Model):
 	@api.multi
 	def action_draft(self):
 		self.state = 'draft'
-	# @api.one
-	# def action_aprove(self):
-	# 	self.state = 'aprove'
+
 	@api.one
 	def action_reject(self):
-		self.write({
-	    'state': 'reject',
-		})
+		self.state= 'reject'
+		
+		mail_mail = self.env['mail.mail']
+		body = '''
+		Dear ''' " %s," % (self.student.name) + '''
+		<p></p>
+		<p> Su anteproyecto de practica ''' "%s" % self.name + ''' ha sido rechazado.
+		</p> 
+		<p>Se realizaron las siguientes observaciones: </p>
+		<p>"''' "%s" % self.comments + '''" </p>
+		<p>Esto es un mensaje automatico, favor no responder. </p>  
+		<p>Saludos, Coordindacion del curso de Practica </p> 
+		'''
+		subject = "Anteproyecto rechazado"
+		mail_values = {
+		'email_from':self.student.email,
+		'email_to': self.student.email,
+		'subject': subject,
+		'body_html': body,
+		'state': 'outgoing',
+		'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
 
-	# @api.model
-	# def create(self, vals):
-	# 	vals['carnet'] = student.carnet
-	# 	rec = super(minutas, self).create(vals)
-	# 	#rec.write()
 
 	#@api.multi
 	#@api.depends('anteproyecto.topics')
@@ -102,8 +119,10 @@ class anteproyecto(models.Model):
 				#'metodology' : self.metodology,
 				#'tools' : self.tools,
 				'topics' : [(6, 0, tags)],
+				'otherTopics' : self.otherTopics,
 				'state' : self.state,
-				'comments' : self.comments
+				'comments' : ' ',
+				#'approvedBy' : lambda obj, cr, uid, context: uid,
 			})
 			self.env.cr.commit()
 			self.profAssesor.cantStudents -= 1
@@ -112,14 +131,12 @@ class anteproyecto(models.Model):
 			body = '''
 			Dear ''' " %s," % (self.student.name) + '''
 			<p></p>
-			<p> Su proyecto ''' "%s" % self.name + ''' ha sido aprobado
-			 ''' "%s" % self.student.email +''' su correo lol.</p> 
+			<p> Su anteproyecto de practica ''' "%s" % self.name + ''' ha sido aprobado.
+			</p> 
 			<p></p>
-			<p>Esto esta entre P's </p> 
-			<p> </p>
-			<p>No responda este correo </p>
+			<p>Esto es un mensaje automatico, favor no responder. </p>
                             
-			<p>Saludos, </p> 
+			<p>Saludos, Coordindacion del curso de Practica </p> 
 			'''
 			subject = "Proyecto aprobado"
 			mail_values = {
@@ -132,17 +149,15 @@ class anteproyecto(models.Model):
 			}
 			
 			body2 = '''
-				Dear ''' " %s," % (self.profAssesor.name) + '''
+				Estimado(a) ''' " %s," % (self.profAssesor.name) + '''
 				<p></p>
 				<p> Usted ha sido asignado como profesor asesor
-				en el Proyecto  ''' "%s" % self.name + ''' a cargo del estudiante
+				en el proyecto  ''' "%s" % self.name + ''' a cargo del estudiante
 				 '''  "%s" % self.student.name +''', correo '''  "%s" % self.student.email +''' .</p> 
-				<p></p>
-				<p>Esto esta entre P's </p> 
 				<p> </p>
-				<p>No responda este correo </p>
+				<p>Esto es un mensaje automatico, favor no responder. </p>
 		                        
-				<p>Saludos, </p> 
+				<p>Saludos, Coordindacion del curso de Practica </p> 
 				'''
 			subject2 = "Proyecto asignado"
 			mail_values2 = {
@@ -160,6 +175,26 @@ class anteproyecto(models.Model):
 			mail_mail.send([mail_id2])
 				#,auto_commit=True)
 				#,force_send=True)
+			id_score = self.env['sspp.calificacion'].create({
+				#'project_id' : id_project,
+				'student' : self.student.id,
+				'carnet' : self.carnet,
+				'firstReportProf' : 0,
+				'secondReportProf' : 0,
+
+				'finalReportProf' : 0,
+				'firstReportComp' : 0,
+
+				'secondReportComp' : 0,
+				'finalReportComp' : 0 ,
+
+				'finalPresentation' : 0 ,
+				'score' : 0,
+				'comments' : ' ',
+				
+				#'approvedBy' : lambda obj, cr, uid, context: uid,
+			})
+			self.env.cr.commit()
 
 
 		else:

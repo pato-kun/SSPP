@@ -51,7 +51,7 @@
 
                 <group>
                 
-                    <field name="topics"  widget="many2many_tags" string="Areas de conocimineto"
+                    <field name="topics"  widget="many2many_tags" string="Areas de conocimiento"
                         attrs="{'readonly':[('isStudent', '=', True)]}"
                         placeholder="Ej: Logisitca, Base de datos.."/>
                 </group>

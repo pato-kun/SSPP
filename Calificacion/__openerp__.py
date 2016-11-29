@@ -23,6 +23,28 @@
 #
 ##############################################################################
 
+{
+    'name': 'Modulo de calificacion',
+    'version': '1',
+    'category': 'calificacion',
+    'description': """Modulo de calificacion del sistema SSPP.""",
+    'author': 'JCAS',
+    'maintainer': 'JCAS',
+    'website': 'http://www.facebook.com/patotec',
+    'licenses' : 'AGPL-3',
+    'depends': ['base','Proyectos'],
+    'init_xml' : [],
+    'demo_xml' : ['demo.xml'],
+    'data': [
+                    'calificacion_view.xml',
 
+                    'seguridad\ir.model.access.csv',
 
-import alertas
+                    ],
+    'installable': True,
+    'auto_install': True,
+    'active': False,
+    'application': True,
+
+ }
+# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+                <!-- Form view -->
+        <record id="view_scheduler_record_form" model="ir.ui.view">
+            <field name="name">sspp.eventos.form</field>
+            <field name="model">sspp.eventos</field>
+            <field name="arch" type="xml">
+                <form string="Schedule record">
+                    <header>
+                        <div class="oe_right oe_button_box">
+                        <button name="endSemester" string="Cerrar semestre"  class="oe_highlight"
+                            type="object"
+                            confirm="Esta accion desabilitara todos los estudiantes, proyectos e informes."
+                            />
+                        </div>
+                        
+                        
+                    </header>
+                <group>
+                <field name="name" string="Semestre"/>
+                <field name="semesterStart" string="Fecha de inicio"/>
+                <field name="firstReport" string="Semana de entrega del primer avance"/>
+                <field name="secondReport" string="Semana de entrega del segundo avance"/>
+                <field name="lastWeekThere" string="Ultima semana de permanencia en la empresa"/>
+                <field name="deliverFinalReport" string="Entrega del informe final al Profesor Asesor"/>
+                <field name="evaluateFinalReport" string="Entrega del informe final al Coordinador"/>
+
+                    </group>
+                </form>
+            </field>
+        </record>
+         
+        <!-- tree (list) view-->
+        <record id="view_scheduler_tree" model="ir.ui.view">
+            <field name="name">sspp.eventos.tree</field>
+            <field name="model">sspp.eventos</field>
+            <field name="arch" type="xml">
+                <tree string="Schedule records">
+                <field name="name" string="Semestre"/>
+                <field name="semesterStart" string="Fecha de inicio"/>
+  
+                </tree>
+            </field>
+        </record>
+
+        <!--  Vista search de semesters  -->        
+
+        <record model="ir.ui.view" id="proyecto_search_view">
+            <field name="name">sspp.eventos.search</field>
+            <field name="model">sspp.eventos</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+                <field name="name"/>
+                <field name="currentSemester"/>
+                <field name="semesterStart"/>
+
+                <filter name="semestersNow" string="Semestre actual"
+                    domain ="[('currentSemester', '=', True)]"/>
+
+                <separator/>
+
+                <filter name="semestersPast" string="Semestres pasados"
+                    domain ="[('currentSemester', '=', False)]"/>
+
+
+                <group string="Agrupar por">
+                    <filter name="currentSemesters" string="Semestre en curso"
+                        context="{'group_by': 'currentSemester'}"/>
+
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="agrupar semestres por año" />
+
+                </group>
+            </search>
+            </field>
+        </record>
+
+
+        <!--  esta parte es el menu de creacion y vista de Anteproyectos -->
+        <record id="sspp_eventos_action" model="ir.actions.act_window">
+            <field name="name">Semestre</field>
+            <field name="res_model">sspp.eventos</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="context">{"search_default_semestersNow":1}</field>
+            <field name="help" type="html">
+
+              <p class="oe_view_nocontent_create">
+                No existe un semestre activo.
+                Haga click aqui para definir su fecha de inicio.
+              </p>
+
+            </field>
+        </record>
+
+        <!-- esta es la opcion del menu principal para el modulo -->
+        <menuitem id="sspp_eventos_menu" name="Periodos" groups="base.group_no_one"
+            />
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_eventos" parent="sspp_eventos_menu" name="Periodos" />
+
+
+        <!-- esta es la opcion del menu izquierdo para el modulo -->
+        <menuitem id="submenu_sspp_eventos_action" parent="submenu_sspp_eventos" name="Semestres" action ="sspp_eventos_action"
+            />
+            </data>
+</openerp>

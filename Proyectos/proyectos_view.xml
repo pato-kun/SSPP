@@ -72,11 +72,12 @@
                         <!-- ultimo cambio added this group-->
                         <group string="Areas de estudio"> 
                         <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"/>
+                        <field name ="otherTopics"/>
                         </group> 
-
+                        <!--
                         <notebook>
                             <page string="Posibles Trabajos"> 
-                            <!-- colspan/col -->
+      
                                 <field name ="possibleTasks"/>
                             </page>
                             
@@ -96,6 +97,7 @@
                                 <field name ="cronogram" />
                             </page>
                         </notebook>
+                        -->
                         <group string="Comentarios"> 
                         <field name="comments"/>
                         </group> 
@@ -166,8 +168,10 @@
                         context="{'group_by': 'student'}"/>
                     <filter name="by_status" string="Estado"
                         context="{'group_by': 'statusProgress'}"/>
+                        <!-- here here may comment if error happens -->
                     <filter name="by_professor" string="Profesor"
                         context="{'group_by': 'profAssesor'}"/>
+                        
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
                             help="Group Students by Year" />

@@ -27,7 +27,7 @@
 from openerp.tools.translate import _
 from openerp import api, models, fields, tools
 import logging
-import time
+import datetime
 from openerp.modules.module import get_module_resource
 
 
@@ -38,18 +38,20 @@ class informesprofesor(models.Model):
 	_name = 'sspp.informesprofesor'
 	_description = 'Formulario De Informes Profesor-coordinador'
 
-	#name = fields.Char('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
+	#name = fields.Text('Nombre Del Proyecto', size=256 , requiered=True, help='Nombre del proyecto')
 	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
 		#,domain="[('isStudent2','=',True)]"  )
 		#, domain=[(_get_students(self))]) #,default=lambda self: self.env.user )
 	profAssesor = fields.Many2one('res.users', ondelete='set null', string="Profesor Asesor", index=True) #,domain=[('user.id')]) 
 	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	dateFiled= fields.Date(string='Fecha')
-	description= fields.Char('Descripcion', size=256 , requiered=True, help='Descripcion del avance')
+	description= fields.Text('Descripcion', size=256 , requiered=True, help='Descripcion del avance')
 	status= fields.Selection([('belated','Atrasado'),('onTime','A tiempo'), ('ahead','Adelantado'),('suspended','Suspender')],'Estado del proyecto', default= 'onTime')
-	comments= fields.Char('Comentarios', size=256 , requiered=True, help='Comentarios')
-	commentsCoord= fields.Char('Observaciones del Coordinador', size=256 , help='Observaciones del Coordinador')
+	comments= fields.Text('Comentarios', size=256 , requiered=True, help='Comentarios')
+	commentsCoord= fields.Text('Observaciones del Coordinador', size=256 , help='Observaciones del Coordinador')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del anteproyecto', default= 'draft')
+	approvedBy = fields.Many2one('res.users', 'Aprobado por', ondelete='set null', requiered=False)
+
 
 	@api.multi
 	def sendMailStudent(self, body, subject):
@@ -107,7 +109,7 @@ class informesprofesor(models.Model):
 	def action_aprove(self):
 		self.state = 'aprove'
 		body  = '''
-		Dear ''' " %s," % (self.project_id.profAssesor.name) + '''
+		Estimado(a) ''' " %s," % (self.project_id.profAssesor.name) + '''
 		<p></p>
 		<p> El informe de avance del proyecto ''' "%s" % self.project_id.name + ''', creado el  
 		''' "%s" % self.create_date + ''' a sido aprobado.</p> 
@@ -115,10 +117,12 @@ class informesprofesor(models.Model):
 		Comentarios del Coordinador:
 		''' "%s" % self.commentsCoord + '''
 		</p>
-		<p>No responda este correo </p>       
-		<p>Saludos, Coordindacion del curso de Practica </p> 
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
+		<p>Saludos,</p> 
+		<p>Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte de avance de" + " %s," % (self.project_id.name) + "aprobado."
+		self.approvedBy = self.env.user
 		self.sendMailProfAssesor(body,subject)
 		
 
@@ -128,7 +132,7 @@ class informesprofesor(models.Model):
 	    'state': 'reject',
 		})
 		body  = '''
-		Dear ''' " %s," % (self.project_id.profAssesor.name) + '''
+		Estimado(a) ''' " %s," % (self.project_id.profAssesor.name) + '''
 		<p></p>
 		<p> El informe de avance del proyecto ''' "%s" % self.project_id.name + ''', creado el  
 		''' "%s" % self.create_date + ''' a sido rechazado.</p> 
@@ -136,7 +140,7 @@ class informesprofesor(models.Model):
 		Comentarios del Coordinador:
 		''' "%s" % self.commentsCoord + '''
 		</p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte de avance de" + " %s," % (self.project_id.name) + "rechazado."
@@ -151,7 +155,7 @@ class informesprofesor(models.Model):
 		#methods
 		if rec.status == 'suspended':
 			body  = '''
-			Dear ''' " %s," % (rec.project_id.student.name) + '''
+			Estimado(a) ''' " %s," % (rec.project_id.student.name) + '''
 			<p></p>
 			<p> Su profesor asesor del proyecto ''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
 			la fecha ''' "%s" % rec.create_date + '''.</p> 
@@ -160,7 +164,7 @@ class informesprofesor(models.Model):
 			<p></p>
 			<p>Si desea apelar esta desicion ingrese al sistema y solicite apelacion desde el apartado de proyectos de proyectos. </p> 
 			<p></p>
-			<p>No responda este correo </p>       
+			<p>Esto es un mensaje automatico, favor no responder. </p>      
 			<p>Saludos, Coordindacion del curso de Practica </p> 
 			'''
 			subject = "Proyecto suspendido" + " %s" % (rec.project_id.name)
@@ -168,14 +172,14 @@ class informesprofesor(models.Model):
 
 		else:
 			body  = '''
-			Dear ''' " %s," % (rec.project_id.student.name) + '''
+			Estimado(a) ''' " %s," % (rec.project_id.student.name) + '''
 			<p></p>
 			<p> Su profesor asesor del proyecto ''' "%s" % rec.project_id.name + '''  ha enviado un reporte de avance 
 			la fecha ''' "%s" % rec.create_date + '''.</p> 
 			<p></p>
 			<p>Comentarios:	</p> ''' "%s" % rec.comments + '''
 			<p></p>
-			<p>No responda este correo </p>       
+			<p>Esto es un mensaje automatico, favor no responder. </p>      
 			<p>Saludos, Coordindacion del curso de Practica </p> 
 			'''
 			subject = "Reporte de avance del proyecto" + " %s" % (rec.project_id.name)
@@ -188,7 +192,7 @@ class informesprofesor(models.Model):
 		<p></p>
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subjectAdmin = "Reporte de avance del proyecto" + " %s" % (rec.project_id.name)
@@ -222,12 +226,13 @@ class informesestudiante(models.Model):
 	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
 	dateStart= fields.Date(string='Fecha inicio')
 	dateEnd= fields.Date(string='Fecha final')
-	tareasPlaneadas = fields.Char('Actividades planeadas para este periodo', size=512, requiered=True, help='Tareas planeadas para este periodo')
-	tareasRealizadasPlan = fields.Char('Actividades realizadas segun lo planeado', size=512, requiered=True, help='Tareas realizadas')
-	tareasRealizadasNoPlan = fields.Char('Actividades realizadas que no estaban planeadas', size=512, requiered=True, help='Tareas Planeadas no planeadas')
-	tareasARealizar = fields.Char('Actividades por realizar el próximo periodo', size=512, requiered=True, help='Tareas para el próximo periodo')
-	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
+	tareasPlaneadas = fields.Text('Actividades planeadas para este periodo', size=512, requiered=True, help='Tareas planeadas para este periodo')
+	tareasRealizadasPlan = fields.Text('Actividades realizadas segun lo planeado', size=512, requiered=True, help='Tareas realizadas')
+	tareasRealizadasNoPlan = fields.Text('Actividades realizadas que no estaban planeadas', size=512, requiered=True, help='Tareas Planeadas no planeadas')
+	tareasARealizar = fields.Text('Actividades por realizar el próximo periodo', size=512, requiered=True, help='Tareas para el próximo periodo')
+	comments= fields.Text('Comentarios ', size=256 , requiered=True, help='Comentarios')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado del informes', default= 'draft')
+	approvedBy = fields.Many2one('res.users', 'Aprobado por', ondelete='set null', requiered=False)
 	
 
 	@api.multi
@@ -269,15 +274,16 @@ class informesestudiante(models.Model):
 	def action_aprove(self):
 		self.state = 'aprove'
 		body  = '''
-		Dear ''' " %s," % (self.project_id.student.name) + '''
+		Estimado(a) ''' " %s," % (self.project_id.student.name) + '''
 		<p></p>
 		<p> Su informe semanal del proyecto ''' "%s" % self.project_id.name + ''', creado el  
 		''' "%s" % self.create_date + ''' a sido aprobado.</p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte semanal de " + " %s," % (self.create_date) + "aprobado."
+		self.approvedBy = self.env.user
 		self.sendMailStudent(body,subject)
 
 	@api.one
@@ -286,7 +292,7 @@ class informesestudiante(models.Model):
 	    'state': 'reject',
 		})
 		body  = '''
-		Dear ''' " %s," % (self.project_id.student.name) + '''
+		Estimado(a) ''' " %s," % (self.project_id.student.name) + '''
 		<p></p>
 		<p> Su informe semanal del proyecto ''' "%s" % self.project_id.name + ''', creado el  
 		''' "%s" % self.create_date + ''' a sido rechazado.</p> 
@@ -294,7 +300,7 @@ class informesestudiante(models.Model):
 		Comentarios del profesor:
 		''' "%s" % self.comments + '''
 		</p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte semanal de " + " %s," % (self.create_date) + "rechazado."
@@ -304,14 +310,14 @@ class informesestudiante(models.Model):
 	def create(self, vals):
 		rec = super(informesestudiante, self).create(vals)
 		body  = '''
-		Dear ''' " %s," % (rec.project_id.profAssesor.name) + '''
+		Estimado(a) ''' " %s," % (rec.project_id.profAssesor.name) + '''
 		<p></p>
 		<p> El estudiante ''' "%s" % rec.project_id.student.name + ''' ha enviado un reporte semanal 
 		del Proyecto  ''' "%s" % rec.project_id.name + '''.</p> 
 		<p></p>
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 		subject = "Reporte semanal del proyecto" + " %s," % (rec.project_id.name)
@@ -332,15 +338,16 @@ class minutas(models.Model):
 	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
 	author = fields.Many2one('res.users', ondelete='set null', string="Encargado", index=True) #,domain=[('user.id')]) 
 	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
-	otherMembers = fields.Char('Asistentes', size=256 , requiered=True, help='Asistentes de la reunión')
+	otherMembers = fields.Text('Asistentes', size=256 , requiered=True, help='Asistentes de la reunión')
 	#otherMembers = fields.Many2many('res.partner', ondelete='set null',string="Asistentes de la reunión",help='Los interesados recibiran una copia del reporte')
 	#for future use, when the app is actually online
-	meetingType = fields.Char('Tipo de Reunión', size=256 , requiered=True, help='Tipo de reunión, presencial, telefónica...')
-	place = fields.Char('Lugar de Reunión', size=256 , requiered=True, help='Locacion de la reunión')
+	meetingType = fields.Text('Tipo de Reunión', size=256 , requiered=True, help='Tipo de reunión, presencial, telefónica...')
+	place = fields.Text('Lugar de Reunión', size=256 , requiered=True, help='Locacion de la reunión')
 	dateDone= fields.Date(string='Fecha de reunión')
 	pointers = fields.Html('Puntos tratados y acuerdos',  requiered=True, help='Acuerdos y puntos tratados')
-	comments= fields.Char('Comentarios ', size=256 , requiered=True, help='Comentarios')
+	comments= fields.Text('Comentarios ', size=256 , requiered=True, help='Comentarios')
 	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado de la minuta', default= 'draft')
+	approvedBy = fields.Many2one('res.users', 'Aprobado por', ondelete='set null', requiered=False)
 
 
 	@api.multi
@@ -405,6 +412,7 @@ class minutas(models.Model):
 		}
 		mail_id = mail_mail.create( mail_values)
 		mail_mail.send([mail_id])
+
 		#############here here##################
 	@api.multi
 	def action_draft(self):
@@ -413,15 +421,17 @@ class minutas(models.Model):
 	@api.one
 	def action_aprove(self):
 		self.state = 'aprove'
-		bodyAdmin  = '''
+		body  = '''
 		<p></p>
 		<p> La minuta de reunion efectuada el  ''' "%s" % self.create_date + '''del proyecto''' "%s" % self.project_id.name + '''  ha sido aprobada.</p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
-		subjectAdmin = "Minuta de reunion aprobada."
-		self.sendMailStudent(body,subject,self.author)
+		subject = "Minuta de reunion aprobada."
+		self.approvedBy = self.env.user
+		self.sendMailStudent(body,subject)
+		self.sendMailProfAssesor(body,subject)
 
 	@api.one
 	def action_reject(self):
@@ -434,16 +444,16 @@ class minutas(models.Model):
 	def create(self, vals):
 		rec = super(minutas, self).create(vals)
 		body  = '''
-		Dear ''' " %s," % (rec.project_id.student.name) + '''
+		Estimado(a) ''' " %s," % (rec.project_id.student.name) + '''
 		<p></p>
 		<p> Minuta de reunion efectuada el ''' "%s," % rec.dateDone + ''' del proyecto ''' "%s," % rec.project_id.name + ''' creada por ''' "%s" % rec.author.name + '''.</p> 
 		<p></p>
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
-		subject = "Minuta de reunión, fecha  " + " %s" % (rec.dateDone)
+		subject = "Minuta de reunion, fecha  " + " %s" % (rec.dateDone)
 		rec.sendMailStudent(body,subject)
 
 		bodyAdmin  = '''
@@ -451,23 +461,23 @@ class minutas(models.Model):
 		<p></p>
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
-		subjectAdmin = "Minuta de reunión, fecha" + " %s" % (rec.project_id.name)
+		subjectAdmin = "Minuta de reunion, fecha" + " %s" % (rec.project_id.name)
 		
 		bodyProf  = '''
-		Dear ''' " %s," % (rec.project_id.profAssesor.name) + '''
+		Estimado(a) ''' " %s," % (rec.project_id.profAssesor.name) + '''
 		<p></p>
 		<p> Minuta de reunion efectuada el ''' "%s," % rec.dateDone + ''' del proyecto ''' "%s," % rec.project_id.name + ''' creada por ''' "%s" % rec.author.name + '''.</p> 
 		<p></p>
 		<p>Esta pendiente su aprobacion. </p> 
 		<p></p>
-		<p>No responda este correo </p>       
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
 		<p>Saludos, Coordindacion del curso de Practica </p> 
 		'''
 
-		rec.sendMailTarget(bodyProf,subject,rec.profAssesor)
+		rec.sendMailTarget(bodyProf,subject,rec.project_id.profAssesor)
 		rec.sendMailAdmin(body,subject)
 
 		return rec
@@ -475,5 +485,134 @@ class minutas(models.Model):
 	_defaults = {
 		'author': lambda obj, cr, uid, context: uid,
 		#'student': lambda self, cr, uid, context:self._get_students(self),
+		#'approvedBy': lambda obj, cr, uid, context: uid,
 		'state': 'draft', 
+	}
+
+class avances(models.Model):
+	#_inherit = 'prof.category'
+	_name = 'sspp.avances'
+	_description = 'Reportes de avance'
+	name = fields.Char('Reporte', size=256 , requiered=True, help='Reporte de avance')
+	#student = fields.Many2one('res.users', 'Estudiante', ondelete='set null', requiered=True)
+	project_id = fields.Many2one('sspp.proyecto', 'Proyecto' ,ondelete='set null',requiered=True ) #, domain=[('profAssesor','=','uid')])
+	files = fields.Many2many("ir.attachment", string="Reporte de avance") 
+	dateDone= fields.Date(string='Entregado el')
+	comments= fields.Text('Comentarios ', size=256 , requiered=True, help='Comentarios')
+	state = fields.Selection([('draft','Borrador'),('aprove','Aprobado'), ('reject','Rechazado')],'Estado de la minuta', default= 'draft')
+	approvedBy = fields.Many2one('res.users', 'Aprobado por', ondelete='set null', requiered=False)
+
+
+	@api.multi
+	def sendMailStudent(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.student.email,
+			'email_to': self.project_id.student.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.multi
+	def sendMailProfAssesor(self, body, subject):
+		#Sends to Professor Assesor
+		mail_mail = self.env['mail.mail']
+		mail_values  = {
+			'email_from':self.project_id.profAssesor.email,
+			'email_to': self.project_id.profAssesor.email,
+			'subject': subject,
+			'body_html': body,
+			'state': 'outgoing',
+			'type': 'email',
+		}
+		mail_id = mail_mail.create( mail_values)
+		mail_mail.send([mail_id])
+
+	@api.one
+	def action_aprove(self):
+		self.state = 'aprove'
+		body  = '''
+		Estimado(a) ''' " %s," % (self.project_id.student.name) + '''
+		<p></p>
+		<p>El reporte de avance  ''' "%s" % self.name + ''' del proyecto ''' "%s" % self.project_id.name + '''  ha sido aprobada.</p> 
+		<p></p>
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
+		<p>Saludos, Coordindacion del curso de Practica </p> 
+		'''
+		subject = "Reporte de avance aprobado."
+		self.approvedBy = self.env.user
+		self.sendMailStudent(body,subject)
+		#self.sendMailProfAssesor(body,subject)
+
+
+	@api.one
+	def action_reject(self):
+		self.write = 'reject'
+		body  = '''
+		Estimado(a) ''' " %s," % (rec.project_id.student.name) + '''
+		<p></p>
+		<p>El reporte de avance  ''' "%s" % self.name + ''' del proyecto ''' "%s" % self.project_id.name + '''  ha sido rechazado.</p> 
+		<p>Su profesor asesor hizo las siguientes observaciones: </p>
+		<p>"''' "%s" % self.comments + '''" </p>
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
+		<p>Saludos, Coordindacion del curso de Practica </p> 
+		'''
+		subject = "Reporte de avance rechazado."
+		#self.approvedBy = self.env.user
+		self.sendMailStudent(body,subject)
+
+
+	@api.multi
+	def action_draft(self):
+		self.state = 'draft'
+
+	
+
+	@api.model
+	def create(self, vals):
+		rec = super(avances, self).create(vals)
+		
+		body  = '''
+		Estimado(a) ''' " %s," % (rec.project_id.profAssesor.name) + '''
+		<p></p>
+		<p> El estudiante ''' "%s," % rec.project_id.student.name + ''' a cargo del proyecto ''' "%s," % rec.project_id.name + ''' envio un reporte de avance la fecha ''' "%s" % rec.dateDone + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
+		<p>Saludos, Coordindacion del curso de Practica </p> 
+		'''
+		subject = "Reporte de avance recibido."
+		rec.sendMailProfAssesor(body,subject)
+
+		return rec
+
+	@api.multi
+	def write(self, vals):
+		super(avances, self).write(vals)
+		
+		body  = '''
+		Estimado(a) ''' " %s," % (self.project_id.profAssesor.name) + '''
+		<p></p>
+		<p> El estudiante ''' "%s," % self.project_id.student.name + ''' a cargo del proyecto ''' "%s," % self.project_id.name + ''' ha modificado el reporte de avance enviado la fecha ''' "%s" % self.dateDone + '''.</p> 
+		<p></p>
+		<p>Esta pendiente su aprobacion. </p> 
+		<p></p>
+		<p>Esto es un mensaje automatico, favor no responder. </p>      
+		<p>Saludos, Coordindacion del curso de Practica </p> 
+		'''
+		subject = "Reporte de avance modificado."
+		self.sendMailProfAssesor(body,subject)
+
+		return True
+
+	#default possible miss
+	_defaults = {
+	'dateDone': lambda *a:datetime.date.today().strftime('%Y-%m-%d'), 
+	'state': 'draft', 
 	}
