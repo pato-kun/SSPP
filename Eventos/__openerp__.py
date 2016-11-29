@@ -19,7 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-#	Coded by: pat01822@gmail.com
+#    Coded by: pat01822@gmail.com
 #
 ##############################################################################
 
@@ -48,4 +48,3 @@
     'application': True,
 
  }
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

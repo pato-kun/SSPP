@@ -23,28 +23,6 @@
 #
 ##############################################################################
 
-{
-    'name': 'Modulo de alertas',
-    'version': '1',
-    'category': 'alertas',
-    'description': """Modulo de alertas del sistema SSPP.""",
-    'author': 'JCAS',
-    'maintainer': 'JCAS',
-    'website': 'http://www.facebook.com/patotec',
-    'licenses' : 'AGPL-3',
-    'depends': ['base','Anteproyectos'],
-    'init_xml' : [],
-    'demo_xml' : ['demo.xml'],
-    'data': [
-                    'alertas_view.xml',
 
-                    
 
-                    ],
-    'installable': True,
-    'auto_install': True,
-    'active': False,
-    'application': True,
-
- }
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+import calificacion

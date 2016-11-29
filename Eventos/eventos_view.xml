@@ -20,6 +20,15 @@
                 <group>
                 <field name="name" string="Semestre"/>
                 <field name="semesterStart" string="Fecha de inicio"/>
+<<<<<<< HEAD
+=======
+                <field name="firstReport" string="Semana de entrega del primer avance"/>
+                <field name="secondReport" string="Semana de entrega del segundo avance"/>
+                <field name="lastWeekThere" string="Ultima semana de permanencia en la empresa"/>
+                <field name="deliverFinalReport" string="Entrega del informe final al Profesor Asesor"/>
+                <field name="evaluateFinalReport" string="Entrega del informe final al Coordinador"/>
+
+>>>>>>> develop
                     </group>
                 </form>
             </field>
@@ -82,7 +91,12 @@
             <field name="help" type="html">
 
               <p class="oe_view_nocontent_create">
+<<<<<<< HEAD
                 No hay proyectos aprobados o en curso.
+=======
+                No existe un semestre activo.
+                Haga click aqui para definir su fecha de inicio.
+>>>>>>> develop
               </p>
 
             </field>
@@ -99,6 +113,11 @@
         <!-- esta es la opcion del menu izquierdo para el modulo -->
         <menuitem id="submenu_sspp_eventos_action" parent="submenu_sspp_eventos" name="Semestres" action ="sspp_eventos_action"
             />
+<<<<<<< HEAD
 
     </data>
 </openerp>
+=======
+            </data>
+</openerp>
+>>>>>>> develop

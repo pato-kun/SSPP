@@ -93,6 +93,7 @@ class proyecto(models.Model):
 	def action_resume(self):
 		self.write({
 	    'statusProgress': 'onTime',
+	    'isActive' : True ,
 		})
 		body  = '''
 		<p></p>

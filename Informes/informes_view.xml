@@ -42,6 +42,20 @@
                 </tree>
             </field>
         </record>
+
+        <!--  esta especifica la vista de los estudiantes en tipo lista  -->
+        <record id="avances_tree" model="ir.ui.view">
+            <field name="name">sspp.avances.tree</field>
+            <field name="model">sspp.avances</field>
+            <field name="arch" type="xml">
+                <tree string="Lista De Avances">
+                    <field name ="name" />
+                    <field name ="project_id" />
+                    <field name ="dateDone" />
+                    <field name ="state" />
+                </tree>
+            </field>
+        </record>
      
 
         <!--  esta especifica la vista en tipo Forma de los informes Profesor-Coordinador, es decir uno x uno -->
@@ -78,16 +92,16 @@
                             <field name ="profAssesor" 
                                 />
                             <field name ="project_id"  widget="selection" domain="[('profAssesor','=',uid)]" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <field name ="dateFiled" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <field name ="description" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
+                                attrs="{'readonly':[('state','in',['aprove'])]}" />
                             <field name ="status" widget="selection" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <group string="Comentarios adicionales">
                                 <field name ="comments" 
-                                    attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
                                 
                                 <field name ="commentsCoord" />
                                 
@@ -120,24 +134,26 @@
                                 attrs="{'readonly':[('state','in',['reject','aprove'])]}">
                             </field>
                             <field name ="project_id"  widget="selection" domain="['|',('student','=',uid),('profAssesor','=',uid)]" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <field name ="otherMembers"  
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                                 <!-- widget="many2many_tags"
                                 options="{'no_create_edit': True}" 
                                 domain="['|',('student','=',uid),('profAssesor','=',uid)]" 
                                 for future use, curretnly only users connectec to local networks can login anyway-->
                             <field name ="meetingType"  
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <field name ="place"  
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>    
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>    
                             <field name ="dateDone" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
+                                attrs="{'readonly':[('state','in',['aprove'])]}" />
                             <field name ="pointers" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             <group string="Comentarios adicionales">
                                 <field name ="comments" 
                                     attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                <field name ="approvedBy" 
+                                 />
                             </group>
                         </group>
                     </sheet> 
@@ -165,29 +181,70 @@
                     <sheet> 
                         <group > 
                             <field name ="project_id"  widget="selection" domain="[('student','=',uid)]" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             
                             <field name ="dateStart" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             
                             <field name ="dateEnd" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             
                             <field name ="tareasPlaneadas" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             
                             <field name ="tareasRealizadasPlan" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             
                             <field name ="tareasRealizadasNoPlan" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>   
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>   
 
                             <field name ="tareasARealizar" 
-                                attrs="{'readonly':[('state','in',['reject','aprove'])]}" />
+                                attrs="{'readonly':[('state','in',['aprove'])]}" />
                             
                             <group string="Comentarios adicionales">
                                 <field name ="comments" 
-                                    attrs="{'readonly':[('state','in',['reject','aprove'])]}"/>
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                            </group>
+                        </group>
+                    </sheet> 
+                </form>
+            </field>
+        </record>
+
+        <!--  esta especifica la vista en tipo Form de los avances Estudiante-Profesor -->
+        <record model="ir.ui.view" id="informes_avances_form" >
+            <field name="name">sspp.avances.form</field>
+            <field name="model">sspp.avances</field>
+            <field name="arch" type="xml">
+                <form string="Avances" version="7.0">
+                    <header>
+                        <!-- botones de control, no visibles a los estudiantes o profesores? -->
+                        <button name="action_draft" string="Regresar a borrador" type="object"
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"   />
+                        <button name="action_aprove" string="Aprobar avances" type="object"  class="oe_highlight" 
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"/>
+                        <button name="action_reject" string="Rechazar avances" type="object"  
+                            groups="Anteproyectos.user_group_professor,base.group_no_one"/>                        
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet> 
+                        <group > 
+                            <field name ="name" 
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
+
+                            <field name ="project_id"  widget="selection" domain="[('student','=',uid)]" 
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                            
+                            <field name ="files" string="Agregar"   
+                                        widget="many2many_binary"
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
+
+                            <field name ="dateDone" string="Fecha de envio" 
+                                attrs="{'readonly':[('state','in',['aprove'])]}"/>
+                            
+                            <group string="Comentarios adicionales">
+                                <field name ="comments" 
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
                             </group>
                         </group>
                     </sheet> 
@@ -279,8 +336,12 @@
                     
                     <filter name="by_state" string="Estado"
                         context="{'group_by': 'state'}"/>
+
+                    <filter name="by_project" string="Proyecto"
+                        context="{'group_by': 'project_id'}"/>
+<!--
                     <filter name="by_professor" string="Profesor"
-                        context="{'group_by': 'project_id.profAssesor'}"/>
+                        context="{'group_by': 'project_id.profAssesor'}"/>  compositive conditinales dont wrok-->
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
                             help="Group Students by Year" />
@@ -317,6 +378,8 @@
                     
                     <filter name="by_state" string="Estado"
                         context="{'group_by': 'state'}"/>
+                        <filter name="by_project" string="Proyecto"
+                        context="{'group_by': 'project_id'}"/>
 
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
@@ -328,10 +391,7 @@
             </field>
         </record>
 
-        <!--  Vista search de minutas
-        <filter name="by_carnet" string="Carné"
-                        context="{'group_by': 'carnet'}"/>
-                         -->
+        <!--  Vista search de minutas   -->
         <record model="ir.ui.view" id="minutas_search_view">
             <field name="name">sspp.minutas.search</field>
             <field name="model">sspp.minutas</field>
@@ -356,12 +416,52 @@
                     
                     <filter name="by_state" string="Estado"
                         context="{'group_by': 'state'}"/>
-                    <filter name="by_professor" string="Profesor"
+                    <!-- <filter name="by_professor" string="Profesor"
                         context="{'group_by': 'profAssesor'}"/>
+                    -->
+                        <filter name="by_project" string="Proyecto"
+                        context="{'group_by': 'project_id'}"/>
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
                             help="Agrupar minutas por año" />
-                    
+                </group>
+            </search>
+            </field>
+        </record>
+
+
+        <!--  Vista search de avances   -->
+        <record model="ir.ui.view" id="avances_search_view">
+            <field name="name">sspp.avances.search</field>
+            <field name="model">sspp.avances</field>
+            <field name="arch" type="xml">
+            <search string="Buscar">
+
+                <field name="project_id"/>
+                <field name="dateDone" />
+                <filter name="isActive" string="Proyectos en curso"
+                    domain ="[('project_id.isActive', '=', True)]"/>
+                <filter name="isntActive" string="Proyectos inactivos"
+                    domain ="[('project_id.isActive', '=', False)]"/>
+
+                <separator/>
+
+                <filter name="non_approved" string="Avances sin aprobar"
+                    domain="[('state', '=', 'draft')]"/>
+                <filter name="approved" string="Avances aprobados"
+                    domain="[('state', '=', 'aprove')]"/>
+
+                <group string="Agrupar por">  
+
+                    <filter name="by_state" string="Estado"
+                        context="{'group_by': 'state'}"/>
+
+                    <filter name="by_project" string="Proyecto"
+                        context="{'group_by': 'project_id'}"/>
+                        <!-- here add extra filters -->
+                    <filter name="by_year" string="Año"
+                        context="{'group_by': 'create_date:year'}" 
+                            help="Agrupar minutas por año" />
                 </group>
             </search>
             </field>
@@ -397,8 +497,27 @@
                 </field>  
                 <field name ="comments" position="attributes" >
                    <attribute name="readonly">1</attribute> 
-                   
+                </field>  
+                <field name ="approvedBy" position="attributes" >
+                   <attribute name="readonly">1</attribute>  
                 </field>    
+            </field>
+        </record>
+
+        <!--  Vista Form del formulario de avances heredada para Estudiantes  -->
+        <record model="ir.ui.view"  id="sspp_informes_avances_form_student">
+            <field name="name">sspp.avances.form.estudiante</field>
+            <field name="model">sspp.avances</field>
+            <field name="inherit_id" ref="Informes.informes_avances_form"/>
+            <field name="groups_id" eval="[(6, 0, [ref('Anteproyectos.user_group_student') ])]"/>
+            <field name="arch" type="xml">
+                <field name ="project_id" position="attributes" widget="selection" domain="[('student','=',uid)]" >
+                   <!-- <attribute name="readonly">1</attribute> -->
+                </field>   
+                <field name ="comments" position="attributes" >
+                   <attribute name="readonly">1</attribute> 
+                </field>  
+                   
             </field>
         </record>
 
@@ -412,6 +531,9 @@
                 <field name ="author" position="attributes" >
                    <attribute name="readonly">1</attribute> 
                 </field>    
+                <field name ="approvedBy" position="attributes" >
+                   <attribute name="readonly">1</attribute> 
+            </field>
             </field>
         </record>
 
@@ -429,8 +551,6 @@
                 <field name ="dateFiled" />
             </field>
         </record>
-
-        here
        
         
         <!--  menu de creacion y vista de informes Estudiante-Profesor -->
@@ -478,27 +598,50 @@
             </field>
         </record>
 
+        
+        <!--  menu de creacion y vista de Minutas -->
+        <record id="sspp_avances_action" model="ir.actions.act_window">
+            <field name="name">Avances</field>
+            <field name="res_model">sspp.avances</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field> <!-- tree -->
+            <field name="search_view_id" ref="avances_search_view"/>
+            <field name="context">{"search_default_isActive":1}</field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click para agregar una nueva entrada.
+              </p>
+            </field>
+        </record>
+
         <!-- esta es la opcion del menu principal para el modulo -->
         <menuitem id="sspp_informes_menu" name="Informes"
             />
 
         <!-- esta es la opcion del menu izquierdo, parent -->
-        <menuitem id="submenu_sspp_informe" parent="sspp_informes_menu" name="Informes del proyecto" />
+        <menuitem id="submenu_sspp_informe" parent="sspp_informes_menu" name="Informes Estudiante" />
+        <!-- esta es la opcion del menu izquierdo para informes estudiante profesor  -->
+        <menuitem id="submenu_sspp_informes_E_P_action" parent="submenu_sspp_informe" name=" Informes Semanales" action ="sspp_informes_E_P_action" sequence="5"
+            />
+        <!-- esta es la opcion del menu izquierdo para informes profesor coodrinador-->
+        <menuitem id="submenu_sspp_avances_action" parent="submenu_sspp_informe" name=" Reportes de Avance" action ="sspp_avances_action" sequence="5"
+            />
 
         <!-- esta es la opcion del menu izquierdo, parent -->
         <menuitem id="submenu_sspp_minutas" parent="sspp_informes_menu" name="Bitácora" />
 
-        <!-- esta es la opcion del menu izquierdo para informes estudiante profesor  -->
-        <menuitem id="submenu_sspp_informes_E_P_action" parent="submenu_sspp_informe" name=" Estudiante-Profesor" action ="sspp_informes_E_P_action" sequence="5"
-            />
+        <!-- esta es la opcion del menu izquierdo, parent -->
+        <menuitem id="submenu_sspp_avances" parent="sspp_informes_menu" name="Informes Profesor" />
 
         <!-- esta es la opcion del menu izquierdo para informes profesor coodrinador-->
-        <menuitem id="submenu_sspp_informes_P_C_action" parent="submenu_sspp_informe" name=" Profesor-Coordinador" action ="sspp_informes_P_C_action" sequence="10"
+        <menuitem id="submenu_sspp_informes_P_C_action" parent="submenu_sspp_avances" name=" Informes de avance del proyecto" action ="sspp_informes_P_C_action" sequence="10"
             />
 
         <!-- esta es la opcion del menu izquierdo para informes profesor coodrinador-->
         <menuitem id="submenu_sspp_minutas_action" parent="submenu_sspp_minutas" name=" Minutas de reunión" action ="sspp_minutas_action" sequence="5"
             />
+
+        
 
          <!--    RECORD RULES -->
          <!--    Regla de vista de informes P-C de grupo Profesores -->

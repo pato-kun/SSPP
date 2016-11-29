@@ -92,19 +92,26 @@
                         </group>
 
                         <group string="Profesor Asesor"> 
+
                             <field name ="profAssesor" 
                                 domain="[('topics','in',topics[0][2]),('cantStudents', '>', 0)]"
                                 attrs="{'readonly':[('state','in',['aprove'])]}"/>
-                            <!-- ^ many2many domain filter ^ -->
+
+                            
                         </group>
                         </group>
 
                         <!-- ultimo cambio added this group-->
                         <group string="Areas de estudio"> 
-                        <field name="topics"  widget="many2many_tags" placeholder="Temas o areas de estudio"
+                        <field name="topics"  widget="many2many_tags" options="{'no_create': True}" placeholder="Temas o areas de estudio"
                             attrs="{'readonly':[('state','in',['aprove'])]}"/>
+<<<<<<< HEAD
                         <field name="otherTopics"  
                             attrs="{'readonly':[('state','in',['aprove'])]}"/>
+=======
+                            <field name ="otherTopics"
+                                    attrs="{'readonly':[('state','in',['aprove'])]}"/>
+>>>>>>> develop
                         </group> 
 
                         <notebook>
@@ -181,6 +188,10 @@
                     <!-- domain="[('uid.groups_id', 'in', 'Anteproyectos.user_group_professor')]"> -->
                     <attribute name="readonly">1</attribute>
                 </field>
+                <!--
+                <field name="topics" options="{'no_create_edit': True}" widget="many2many_tags" placeholder="Temas o areas de estudio"
+                            attrs="{'readonly':[('state','in',['aprove'])]}"  />
+                -->
                 <field name="comments" position="attributes" >
                     <attribute name="readonly">1</attribute>
                 </field>
@@ -217,8 +228,10 @@
                         context="{'group_by': 'student'}"/>
                     <filter name="by_state" string="Estado"
                         context="{'group_by': 'state'}"/>
+                        <!-- here here may comment if error happens  -->
                     <filter name="by_professor" string="Profesor"
                         context="{'group_by': 'profAssesor'}"/>
+                       
                     <filter name="by_year" string="Año"
                         context="{'group_by': 'create_date:year'}" 
                             help="Group Students by Year" />
@@ -344,7 +357,7 @@
             />
 
         <!-- esta es la opcion del menu izquierdo para el modulo -->
-        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos sidebar" 
+        <menuitem id="submenu_sspp_anteproyecto" parent="sspp_anteproyecto_menu" name="Anteproyectos" 
             />
 
 

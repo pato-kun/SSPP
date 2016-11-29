@@ -2,4 +2,7 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_informes_p_c_estudiantes,sspp.proyecto.estudiante,model_sspp_proyecto,Anteproyectos.user_group_student,1,0,0,0
 access_informes_p_c_profesores,sspp.proyecto.profesor,model_sspp_proyecto,Anteproyectos.user_group_professor,1,1,1,1
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop

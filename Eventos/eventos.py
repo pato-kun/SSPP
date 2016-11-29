@@ -39,6 +39,15 @@ class eventos(models.Model):
 	semesterStart= fields.Date('Date')
 	name = fields.Char(required=True)
 	weeks = fields.Integer()
+<<<<<<< HEAD
+=======
+	firstReport = fields.Integer()
+	secondReport = fields.Integer()
+	lastWeekThere = fields.Integer()
+	deliverFinalReport = fields.Integer()
+	evaluateFinalReport = fields.Integer()
+
+>>>>>>> develop
 	currentSemester = fields.Boolean()
 
     #this method will be called from automated actions, when the time is right it will initiate the week count
@@ -54,7 +63,11 @@ class eventos(models.Model):
 		#_logger.critical('executed action weekstart %s', weekStart)
 
 		#semana 5, primer reporte
+<<<<<<< HEAD
 		if (currentWeek - weekStart2) == 5:
+=======
+		if (currentWeek - weekStart2) == dates.firstReport:
+>>>>>>> develop
 
 			body  = '''
 			Estimado estudiante, 
@@ -63,14 +76,32 @@ class eventos(models.Model):
 			<p>Saludos, </p>
 			<p>Coordindacion del curso de Practica </p> 
 			'''
+<<<<<<< HEAD
 			subject = "Semana 5, Primer Reporte de Avance"
 
 			self.mailAllStudents(body, subject)
+=======
+			body2  = '''
+			Estimado Profesor, 
+			<p>En el transcurso de esta semana debe recibir el primer avance del proyecto de los estudiantes que tenga a cargo. </p>
+			<p>No responda este correo </p>       
+			<p>Saludos, </p>
+			<p>Coordindacion del curso de Practica </p> 
+			'''
+			subject = 'Semana %s, Primer Reporte de Avance',dates.firstReport
+
+			self.mailAllStudents(body, subject)
+			self.mailAllProfessors(body2, subject)
+>>>>>>> develop
 			
 			_logger.critical('Recordatorio de avance 1 enviado de y currentWeek %s',(currentWeek - weekStart2))
 		
 		#semana 9, segundo reporte
+<<<<<<< HEAD
 		elif (currentWeek - weekStart2) == 9:
+=======
+		elif (currentWeek - weekStart2) == dates.secondReport: 
+>>>>>>> develop
 
 			body  = '''
 			Estimado estudiante, 
@@ -79,62 +110,118 @@ class eventos(models.Model):
 			<p>Saludos, </p>
 			<p>Coordindacion del curso de Practica </p> 
 			'''
+<<<<<<< HEAD
 			subject = "Semana 9, Segundo Reporte de Avance"
 
 			self.mailAllStudents(body, subject)
+=======
+			body2  = '''
+			Estimado Profesor, 
+			<p>En el transcurso de esta semana debe recibir el segundo avance del proyecto de los estudiantes que tenga a cargo. </p>
+			<p>No responda este correo </p>       
+			<p>Saludos, </p>
+			<p>Coordindacion del curso de Practica </p> 
+			'''
+			subject = 'Semana %s, Segundo Reporte de Avance',dates.secondReport
+
+			self.mailAllStudents(body, subject)
+			self.mailAllProfessors(body2, subject)
+>>>>>>> develop
 			
 			_logger.critical('Recordatorio de avance 2 enviado de y currentWeek %s',(currentWeek - weekStart2))
 
 		#semana 13, ultima semana de permanencia del estudiante en la empresa
+<<<<<<< HEAD
 		elif (currentWeek - weekStart2) == 13:
 
 			body  = '''
 			Estimado estudiante, 
 			<p>En el transcurso de esta semana debe entregar el primer reporte de avance. </p>
+=======
+		elif (currentWeek - weekStart2) == dates.lastWeekThere: 
+			body  = '''
+			Estimado estudiante, 
+			<p>Se le recuerda que esta es la ultima semana de permanencia en la empresa. </p>
+>>>>>>> develop
 			<p>No responda este correo </p>       
 			<p>Saludos, </p>
 			<p>Coordindacion del curso de Practica </p> 
 			'''
+<<<<<<< HEAD
 			subject = "Semana 13, ultima semana en la empresa"
+=======
+			subject = 'Semana %s, ultima semana en la empresa',dates.lastWeekThere
+>>>>>>> develop
 
 			self.mailAllStudents(body, subject)
 			
 			_logger.critical('ultima semana de permanencia del estudiante en la empresa y currentWeek %s',(currentWeek - weekStart2))
 
 		#semana 14, Informe Final 
+<<<<<<< HEAD
 		elif (currentWeek - weekStart2) == 14:
 
 			body  = '''
 			Estimado estudiante, 
 			<p>En el transcurso de esta semana debe entregar el primer reporte de avance. </p>
+=======
+		elif (currentWeek - weekStart2) == dates.deliverFinalReport: 
+
+			body  = '''
+			Estimado estudiante, 
+			<p>En el transcurso de esta semana debe entregar el informe final a su profesor asesor. </p>
+>>>>>>> develop
 			<p>No responda este correo </p>       
 			<p>Saludos, </p>
 			<p>Coordindacion del curso de Practica </p> 
 			'''
+<<<<<<< HEAD
 			subject = "Semana 14, Informe Final"
+=======
+			subject = 'Semana %s, Informe Final' ,dates.deliverFinalReport  
+>>>>>>> develop
 
 			self.mailAllStudents(body, subject)
 			
 			_logger.critical('Informe Final y currentWeek %s',(currentWeek - weekStart2))
 
 		#semana 15, Informe Final Revision
+<<<<<<< HEAD
 		elif (currentWeek - weekStart2) == 15:
 
 			body  = '''
 			Estimado estudiante, 
 			<p>En el transcurso de esta semana debe entregar el primer reporte de avance. </p>
+=======
+		elif (currentWeek - weekStart2) == dates.evaluateFinalReport:
+
+			body  = '''
+			Estimado profesor, 
+			<p>En el transcurso de esta semana debe entregar el informe final aprobado al coordinador del curso. </p>
+>>>>>>> develop
 			<p>No responda este correo </p>       
 			<p>Saludos, </p>
 			<p>Coordindacion del curso de Practica </p> 
 			'''
+<<<<<<< HEAD
 			subject = "Semana 15, Revision de Informe Final "
 
 			self.mailAllStudents(body, subject)
+=======
+			subject = 'Semana %s, Revision de Informe Final' ,dates.evaluateFinalReport 
+
+			#self.mailAllStudents(body, subject)
+			self.mailAllProfessors(body,subject)
+>>>>>>> develop
 			
 			_logger.critical('Informe Final Revision y currentWeek %s',(currentWeek - weekStart2))
 
 		else:
 			_logger.critical('You are not prepared.. its just been %s Weeks',(currentWeek - weekStart2))
+<<<<<<< HEAD
+=======
+			_logger.critical('las fechas son %s,%s,%s,%s,%s ', dates.firstReport, dates.secondReport, dates.lastWeekThere, dates.deliverFinalReport, dates.evaluateFinalReport)
+>>>>>>> develop
 
 
 	# @api.model
@@ -147,6 +234,32 @@ class eventos(models.Model):
 	@api.multi
 	def endSemester(self):
 		self.currentSemester = False
+<<<<<<< HEAD
+=======
+		
+
+		proyectos = self.env['sspp.proyecto'].search([('isActive','=',True)])
+		for proyecto in proyectos:
+			_logger.critical('borrando %s ',proyecto.name)
+			proyecto.isActive  = False
+			
+
+		anteproyectos = self.env['sspp.anteproyecto'].search([('isActive','=',True)])
+		for anteproyecto in anteproyectos:
+			_logger.critical('borrando %s ',anteproyecto.name)
+			anteproyecto.isActive  = False
+
+			users = self.env['res.users'].search([('isStudent','=',True)])
+		for student in users:
+			_logger.critical('borrando %s ',student.login)
+			student.active  = False
+
+		# users = self.env['sspp.informesprofesor'].search([('isActive','=',True)])
+
+		# users = self.env['sspp.informesestudiante'].search([('isActive','=',True)])
+
+		# users = self.env['sspp.minutas'].search([('isActive','=',True)])
+>>>>>>> develop
 
 
 	@api.multi
@@ -186,5 +299,14 @@ class eventos(models.Model):
 
 
 	_defaults = {
+<<<<<<< HEAD
+=======
+		
+		'firstReport' : 5,
+		'secondReport' : 9,
+		'lastWeekThere' : 13,
+		'deliverFinalReport' : 14,
+		'evaluateFinalReport' :15,
+>>>>>>> develop
 		'currentSemester': True ,
 	}

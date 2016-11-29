@@ -2,10 +2,17 @@
 <openerp>
     <data noupdate="1">
         <record id="ir_cron_scheduler_report_1_action" model="ir.cron">
+<<<<<<< HEAD
             <field name="name">This is supposed to send 1 if weeks from date greater than 5</field>
             <field name="user_id" ref="base.user_root"/>
             <field name="interval_number">1</field>
             <field name="interval_type">minutes</field>
+=======
+            <field name="name">Contador de semanas en curso</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+>>>>>>> develop
             <field name="numbercall">-1</field>
             <field eval="False" name="doall"/>
             <field eval="'sspp.eventos'" name="model"/>
@@ -14,4 +21,8 @@
 
 
    </data>
+<<<<<<< HEAD
 </openerp> 
+=======
+</openerp> 
+>>>>>>> develop
